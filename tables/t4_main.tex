@@ -1,0 +1,58 @@
+% t4_main.tex -- T4 of the plan: the main comparison (results.csv via numbers.tex; Welch tests
+% computed by make_numbers.py).
+\begin{widetable}[htbp]
+  \centering
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \caption{Searched against manual sets: test results, mean $\pm$ standard deviation over 3
+    training seeds. $\Delta$: the searched set minus the manual set, with Welch's two-sided $p$.
+    Sampled: each test edge ranked against \val{split-negatives} negatives, with Hit@10 the metric
+    fixed in advance. Full: against
+    every product the user has no edge to, with Recall@20 averaged over users.}
+  \label{tab:main}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llllll@{}}
+    \toprule
+    & & \multicolumn{2}{c}{Sampled} & \multicolumn{2}{c}{Full ranking} \\
+    \cmidrule(lr){3-4}\cmidrule(l){5-6}
+    Model & Set & Hit@10 & NDCG@10 & Hit@10 & Recall@20 \\
+    \midrule
+    HAN & \code{a1}, 4 paths & \val{han-f4a1-hit-mean} $\pm$ \val{han-f4a1-hit-sd}
+      & \val{han-f4a1-ndcg-mean} & \val{han-f4a1-fhit-mean} $\pm$ \val{han-f4a1-fhit-sd}
+      & \val{han-f4a1-frec-mean} \\
+    & M5 & \val{han-m5-hit-mean} $\pm$ \val{han-m5-hit-sd} & \val{han-m5-ndcg-mean}
+      & \val{han-m5-fhit-mean} $\pm$ \val{han-m5-fhit-sd} & \val{han-m5-frec-mean} \\
+    & $\Delta$ ($p$) & \val{han-4-hit-diff} (\val{han-4-hit-p})
+      & \val{han-4-ndcg-diff} (\val{han-4-ndcg-p}) & \val{han-4-fhit-diff} (\val{han-4-fhit-p})
+      & \val{han-4-frec-diff} (\val{han-4-frec-p}) \\
+    \addlinespace
+    & \code{a1}, 6 paths & \val{han-f6a1-hit-mean} $\pm$ \val{han-f6a1-hit-sd}
+      & \val{han-f6a1-ndcg-mean} & \val{han-f6a1-fhit-mean} $\pm$ \val{han-f6a1-fhit-sd}
+      & \val{han-f6a1-frec-mean} \\
+    & M6 & \val{han-m6-hit-mean} $\pm$ \val{han-m6-hit-sd} & \val{han-m6-ndcg-mean}
+      & \val{han-m6-fhit-mean} $\pm$ \val{han-m6-fhit-sd} & \val{han-m6-frec-mean} \\
+    & $\Delta$ ($p$) & \val{han-6-hit-diff} (\val{han-6-hit-p})
+      & \val{han-6-ndcg-diff} (\val{han-6-ndcg-p}) & \val{han-6-fhit-diff} (\val{han-6-fhit-p})
+      & \val{han-6-frec-diff} (\val{han-6-frec-p}) \\
+    \midrule
+    metapath2vec & \code{a1}, 4 paths & \val{mtv-f4a1-hit-mean} $\pm$ \val{mtv-f4a1-hit-sd}
+      & \val{mtv-f4a1-ndcg-mean} & \val{mtv-f4a1-fhit-mean} $\pm$ \val{mtv-f4a1-fhit-sd}
+      & \val{mtv-f4a1-frec-mean} \\
+    & M5 & \val{mtv-m5-hit-mean} $\pm$ \val{mtv-m5-hit-sd} & \val{mtv-m5-ndcg-mean}
+      & \val{mtv-m5-fhit-mean} $\pm$ \val{mtv-m5-fhit-sd} & \val{mtv-m5-frec-mean} \\
+    & $\Delta$ ($p$) & \val{mtv-4-hit-diff} (\val{mtv-4-hit-p})
+      & \val{mtv-4-ndcg-diff} (\val{mtv-4-ndcg-p}) & \val{mtv-4-fhit-diff} (\val{mtv-4-fhit-p})
+      & \val{mtv-4-frec-diff} (\val{mtv-4-frec-p}) \\
+    \addlinespace
+    & \code{a1}, 6 paths & \val{mtv-f6a1-hit-mean} $\pm$ \val{mtv-f6a1-hit-sd}
+      & \val{mtv-f6a1-ndcg-mean} & \val{mtv-f6a1-fhit-mean} $\pm$ \val{mtv-f6a1-fhit-sd}
+      & \val{mtv-f6a1-frec-mean} \\
+    & M6 & \val{mtv-m6-hit-mean} $\pm$ \val{mtv-m6-hit-sd} & \val{mtv-m6-ndcg-mean}
+      & \val{mtv-m6-fhit-mean} $\pm$ \val{mtv-m6-fhit-sd} & \val{mtv-m6-frec-mean} \\
+    & $\Delta$ ($p$) & \val{mtv-6-hit-diff} (\val{mtv-6-hit-p})
+      & \val{mtv-6-ndcg-diff} (\val{mtv-6-ndcg-p}) & \val{mtv-6-fhit-diff} (\val{mtv-6-fhit-p})
+      & \val{mtv-6-frec-diff} (\val{mtv-6-frec-p}) \\
+    \midrule
+    Popularity & -- & \val{pop-hit} & \val{pop-ndcg} & \val{pop-fhit} & \val{pop-frec} \\
+    \bottomrule
+  \end{tabular*}
+\end{widetable}

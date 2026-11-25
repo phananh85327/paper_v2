@@ -1,0 +1,49 @@
+% t3_sets.tex -- T3 of the plan: the 24 path sets (HAN repository, arch.py, via numbers.tex).
+% The reasons of the manual sets follow LMSPS review/manual_metapath_sets.md (revised version).
+% Since B2 (25 November) it also lists the ten random draws, side by side for the two sizes as in
+% the reviewed Vietnamese version, with HAN's validation pick marked. Table~\ref{tab:random}
+% (t3b_random.tex) keeps them too, for the supplementary document.
+\begin{widetable}[htbp]
+  \centering
+  \small
+  \caption{All 24 path sets: searched, manual and random (the control). A path is written from the
+    product outwards and stands for itself and its reverse. For example, \code{PUP} links two
+    products reviewed by the same user. The set marked * is HAN's validation pick
+    (Section~\ref{sec:res-random}).}
+  \label{tab:sets}
+  \begin{tabularx}{\linewidth}{@{}llL@{}}
+    \toprule
+    Set & Paths & How it was chosen \\
+    \midrule
+    \multicolumn{3}{@{}l}{\emph{Searched: LMSPS, \val{search-runs} runs per set size, combined}} \\
+    \code{a1}, 4 paths & \texttt{\val{set-f4a1}} & best averaged score, in a window of
+      \val{search-window-4} \\
+    \code{a2}, 4 paths & \texttt{\val{set-f4a2}} & the other set of that window \\
+    \code{c}, 4 paths & \texttt{\val{set-f4c}} & consensus of the vote \\
+    \code{a1}, 6 paths & \texttt{\val{set-f6a1}} & simplest of the \val{search-window-6} sets in the
+      window \\
+    \code{a2}, 6 paths & \texttt{\val{set-f6a2}} & second simplest \\
+    \code{c}, 6 paths & \texttt{\val{set-f6c}} & consensus of the vote \\
+    \midrule
+    \multicolumn{3}{@{}l}{\emph{Manual: designed with AI assistance from stated principles, fixed
+      in advance}} \\
+    M1 & \texttt{\val{set-m1}} & one behaviour path, one content path \\
+    M2 & \texttt{\val{set-m2}} & one path per kind of evidence: co-purchase, co-review, category \\
+    M3 & \texttt{\val{set-m3}} & behaviour only \\
+    M4 & \texttt{\val{set-m4}} & categories only \\
+    M5 & \texttt{\val{set-m5}} & M2 and \code{PPUP}, for the main comparison at 4 paths \\
+    M6 & \texttt{\val{set-m6}} & M5 and two wider paths, for the main comparison at 6 paths \\
+    M7 & \texttt{\val{set-m7}} & every path of at most two hops, no judgement \\
+    M8 & \texttt{\val{set-m8}} & long paths through users, as the earlier search runs preferred \\
+    \midrule
+    \multicolumn{3}{@{}l}{\emph{Random (the control): drawn uniformly without replacement from the
+      \val{search-cands} candidates, fixed in advance}} \\
+    \emph{draw} & \emph{4 paths} & \emph{6 paths} \\
+    1 & \texttt{\val{set-r4d1}} & \texttt{\val{set-r6d1}} \\
+    2 & \texttt{\val{set-r4d2}} & \texttt{\val{set-r6d2}}\textsuperscript{*} \\
+    3 & \texttt{\val{set-r4d3}} & \texttt{\val{set-r6d3}} \\
+    4 & \texttt{\val{set-r4d4}} & \texttt{\val{set-r6d4}} \\
+    5 & \texttt{\val{set-r4d5}} & \texttt{\val{set-r6d5}} \\
+    \bottomrule
+  \end{tabularx}
+\end{widetable}

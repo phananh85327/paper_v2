@@ -1,0 +1,102 @@
+% paper_v2.tex -- the conference version of the paper: ACM two-column (acmart, sigconf), cut to
+% about 8 pages of main text in parts C1-C8 (plan_v2.tex in this folder). The full version stays
+% in ../paper/ (paper.tex, one column; paper_acm.tex, the same text in this format) and changes
+% only where the cut found an error (V5 in plan_v2.tex); this folder has its own sections/, tables/,
+% figures/ and numbers.tex. Parts B1-B5 (from 25 November) bring in the author's review of the
+% Vietnamese version (../paper_v2_vn/, part L10), as plan_v2.tex says. Since B4 the paper has no
+% appendix: appendix.tex and its tables and figure become the supplementary document in B5.
+% Compile with pdfLaTeX and BibTeX; it uses the three .bib files at the project root.
+% numbers.tex and figures/*.dat: from the LMSPS repository's root, with the HAN repository next
+% to it, python paper/make_numbers.py --lmsps . --han ../han-improve --out <this folder>
+% For a submission: drop nonacm, add the venue's settings (\acmConference, \acmYear,
+% \setcopyright, ...) and the options it asks for, such as review and anonymous for double-blind
+% review.
+\PassOptionsToPackage{dvipsnames}{xcolor}
+\PassOptionsToPackage{obeyspaces,spaces}{url}   % \code keeps its spaces and can break at them
+% nonacm: a draft not yet at an ACM venue, so no conference line, copyright block or ACM reference
+% box. For a submission, drop nonacm and add the venue's settings.
+\documentclass[sigconf,nonacm]{acmart}
+\makeatletter
+\@ACM@balancefalse   % no column balancing: acmart's \balance would come in the second column
+\makeatother         % of the last page and only warn that it cannot balance there
+\raggedbottom
+
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\usepackage{xurl}   % long links may break anywhere in the narrow columns
+% File names and meta-paths in typewriter type; they may break only after / _ . or at a space, so
+% a meta-path such as PUPUP is never split.
+\DeclareUrlCommand\codeurl{\def\UrlBreaks{\do\/\do\_\do\.}\def\UrlBigBreaks{}\urlstyle{tt}}
+\DeclareRobustCommand{\code}[1]{\codeurl{#1}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\hyphenation{LMSPS}   % a name: never split as LM-SPS
+% Wide tables and figures span both columns.
+\newenvironment{widetable}[1][tbp]{\begin{table*}[#1]}{\end{table*}}
+\newenvironment{widefigure}[1][tbp]{\begin{figure*}[#1]}{\end{figure*}}
+% Figure colours, as in paper.tex: searched sets blue, manual orange, random draws aqua.
+\definecolor{cSearch}{HTML}{2A78D6}
+\definecolor{cManual}{HTML}{EB6834}
+\definecolor{cRandom}{HTML}{1BAF7A}
+\definecolor{cOther}{HTML}{7C7B76}
+% Every number of the paper: \val{key}, from numbers.tex.
+\input{numbers}
+
+% The descriptive title of the Vietnamese version (D1 in plan_v2.tex). The break keeps
+% "HAN-Based Product Recommendation" on one line; the running head has the title in one piece.
+\title[Cost and Effectiveness of Meta-Path Search for HAN-Based Product Recommendation]{Cost and
+  Effectiveness of Meta-Path Search\texorpdfstring{\\}{ } for HAN-Based Product Recommendation}
+\subtitle{A Controlled Study of LMSPS on Amazon-Meta}
+\author{Phan Hoang Tuan Anh}
+\email{phananh85327@gmail.com}
+\affiliation{%
+  \department{Faculty of Information Technology}
+  \institution{Ho Chi Minh City University of Industry and Trade (HUIT)}
+  \city{Ho Chi Minh City}
+  \country{Vietnam}}
+
+\begin{document}
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+% CCS concepts removed in B1 (D4 in plan_v2.tex): the paper is not for an ACM venue yet. For an
+% ACM submission, which needs them, put back
+% \ccsdesc[500]{Information systems~Recommender systems} and
+% \ccsdesc[300]{Computing methodologies~Neural networks} here, with the matching CCSXML block
+% from https://dl.acm.org/ccs.
+
+\keywords{heterogeneous graph, meta-path search, HAN, recommender systems, link prediction, manual
+meta-path design}
+
+\maketitle
+\hypersetup{pdftitle={Cost and Effectiveness of Meta-Path Search for HAN-Based Product
+  Recommendation: A Controlled Study of LMSPS on Amazon-Meta}, pdfauthor={Phan Hoang Tuan Anh},
+  pdfkeywords={heterogeneous graph, meta-path search, HAN, recommender systems, link prediction,
+  manual meta-path design}}
+
+\input{sections/intro}
+\input{sections/related}
+\input{sections/prelim}
+\input{sections/data}
+\input{sections/method}
+\input{sections/setup}
+\input{sections/results}
+\input{sections/discussion}
+
+\input{sections/statements}
+
+\begin{acks}
+The author thanks Dr.~Ngo Duong Ha and Dr.~Pham Nguyen Huy Phuong for their guidance. This work
+received no funding.
+\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references,notes_extra,reading_list}
+
+\end{document}

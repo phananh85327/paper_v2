@@ -1,0 +1,121 @@
+% sections/method.tex -- Section 5 (paper_v2, cut in C4 from the full version's). Every number is
+% \val{} from numbers.tex. Figure: figures/f2_ties.tex (F2). B2 (25 November) brought in the
+% reviewed Vietnamese version (paper_v2_vn, L10): no opening pointers (F1, the overview, and the
+% changes from the base papers go to the supplementary document in B5), the leakage controls and
+% the one-standard-error rule as the author reworded them, the runs' agreement in the text, and
+% "sampled" for the negatives and LMSPS's paths, so that "draws" means the random sets only. The key
+% settings are in Section 6.
+\section{Method}
+\label{sec:method}
+
+\subsection{Meta-path search for link prediction}
+\label{sec:search}
+
+\paragraph{LMSPS\@.} LMSPS \citep{li2024longrange} first computes one feature matrix over the
+target nodes for every candidate meta-path: the raw features at the path's end, averaged step by
+step along it. A supernet gives each candidate $k$ a weight $\alpha_k$. Each epoch it fuses $M$
+paths sampled from a pool with Gumbel-softmax weights computed from $\alpha$. The pool shrinks to
+the $V$ paths with the largest $\alpha$. The network's weights learn on training data and $\alpha$
+on validation data. Finally, the sets of $M$ paths from the final pool are scored on validation
+data, and the best one is the result. We start from the authors'
+code\footnote{\url{https://github.com/JHL-HUST/LMSPS}}, which was built for node classification. We
+change it for link prediction.
+
+\paragraph{Score and loss.} A product's vector $h_p$ is the weighted sum of its path features (each
+through its own linear map), followed by PReLU and dropout. Every user has a free
+\val{search-hidden}-dimensional vector $e_u$. A pair is scored by
+\begin{equation}
+  s(u, p) = e_u^{\top} h_p ,
+  \label{eq:score}
+\end{equation}
+and trained with the BPR loss \citep{rendle2009bpr}, $-\log \sigma\bigl(s(u, p^{+}) - s(u,
+p^{-})\bigr)$, over training edges $(u, p^{+})$ and products $p^{-}$ sampled at random from those
+$u$ has no training edge to. HAN uses the same score and loss.
+
+\paragraph{Candidates.} The candidates are the paths of 1 to \val{search-hops} hops that start and
+end at a product, since HAN needs one product graph per path: \val{search-cands-raw} paths, or
+\val{search-cands} once each is merged with its reverse, which gives the same graph once made
+symmetric.
+
+\paragraph{Leakage controls.} The features are computed on the training graph, which holds the
+training edges themselves. For a training edge, its product's user-path features therefore already
+contain the edge's own user, which a held-out edge never has. To avoid this, we learn $\alpha$ on
+the validation edges. For the weight step, we compute the user-path features \val{search-folds}
+times, each time leaving out a different quarter of the training edges, and read each edge's
+features from the version that lacks it.
+
+\paragraph{Schedule and selection.} A set holds $M = 4$ or $M = 6$ paths. The final pool holds
+$V = \val{search-pool}$ paths, so that all \val{search-sets} sets of the pool can be scored. A run
+lasts \val{search-epochs} epochs, the first \val{search-warmup} with the whole pool. LMSPS scores
+sampled sets with fresh Gumbel noise, which on our data moved a set's score more than the gaps
+between sets. We score every set once without noise, by its validation BPR against the
+\val{split-negatives} fixed negatives of each validation edge. Each run also records its
+\emph{tie group}, the sets within $\delta = \val{search-delta}$ of its best.
+
+\subsection{One decision from many runs}
+\label{sec:fleet}
+
+One run cannot rank its best sets (Figure~\ref{fig:ties}): its tie group holds a median of
+\val{search-tie-med-4} of the \val{search-sets} sets for four paths and \val{search-tie-med-6} for
+six, and \val{search-runs} runs of each size produce \val{search-winners-4} and
+\val{search-winners-6} different winners. We therefore run the search \val{search-runs} times per
+size, with seeds 1 to \val{search-runs} on the same data and split, and take one decision from all
+the runs.
+
+\input{figures/f2_ties}
+
+\paragraph{Averaged scores.} The runs score different sets because their final pools differ, but
+they rank the sets they share alike (median Spearman correlation \val{search-agree-4} for four paths
+and \val{search-agree-6} for six). We fit the validation loss of set $s$ in run $r$ as $a_r + b_s$
+by least squares and compare the \val{search-avg-sets-4} and \val{search-avg-sets-6} sets scored in
+at least five runs. We then apply a one-standard-error rule: the sets whose $b_s$ lies within one
+standard error of the best set's value (\val{search-se-4} for four paths and \val{search-se-6} for
+six) form a window, in which the simplest set by total hops comes first, since shorter paths also
+make sparser HAN graphs. For four paths this window holds \val{search-window-4} sets: \code{a1} (the
+best) and \code{a2}. Both go to the models. For six it holds \val{search-window-6} near-equal sets,
+a plateau the search cannot rank. We take the two simplest, as many as for four paths. We also wrote
+down the reasons for this decision.
+
+\paragraph{Vote.} A second rule lets each run pick the set in its tie group whose paths the other
+runs' winners contain most often. The consensus set \code{c} holds the $M$ paths most common among
+the picks. As a vote creates some agreement by construction, we compare it with
+\val{search-null-fleets} fleets whose scores are shuffled within each run (Figure~\ref{fig:ties}b).
+The runs agree beyond chance, but modestly: \val{search-null-share-4}\% and
+\val{search-null-share-6}\% of the shuffled fleets have as few distinct picks.
+
+\paragraph{What goes to the models.} Each size hands over \code{a1}, \code{a2} and \code{c}
+(Table~\ref{tab:sets}). The set \code{a1} is the main comparison against the manual sets, fixed in
+advance. The tolerance $\delta$ was fixed before the final runs, from the run-to-run noise of
+earlier runs. The averaged scores do not depend on it, and a smaller $\delta$ changes neither
+\code{a1} nor \code{a2}.
+
+\subsection{Models that use the paths}
+\label{sec:models}
+
+\paragraph{HAN\@.} HAN \citep{wang2019heterogeneous} turns each meta-path into a graph over the
+target nodes, runs node-level attention (a graph attention layer) on each graph and fuses the
+per-path embeddings with semantic-level attention, a weight $\beta$ per path shared by all nodes.
+We keep both levels and change three things. \emph{Graphs:} each path's product graph keeps each
+product's \val{han-set-topk} strongest neighbours by walk count after every hop, as unpruned paths
+with two user hops would link a product to most of the catalogue. The graph is binary and symmetric
+and gives every product a self-loop. \emph{Users:} HAN encodes the products only. Every user has a
+free vector, and a pair is scored by Eq.~\eqref{eq:score} with BPR. The user vectors hold
+\val{han-user-params}M of HAN's \val{han-params-min}--\val{han-params-max}M parameters.
+\emph{Path weights:} every path's attention layer starts from the same weights, and $\beta$ is held
+equal for the first \val{han-set-beta-warmup} epochs. If each path's attention layer started from its
+own random weights, the weight HAN gives a path would depend on the path's position in the list.
+Without the warm-up, one path took all the weight within a few epochs.
+
+\paragraph{metapath2vec.} metapath2vec \citep{dong2017metapath2vec} learns node embeddings (without
+features) with a skip-gram over random walks that follow a meta-path. From every product we walk
+all paths of a set together, each as a repeated template (\code{PUP} gives P--U--P--U\ldots). We
+then score the frozen embeddings by Eq.~\eqref{eq:score}. Users are reached only through paths with a
+\code{U}, so a set without one leaves the users untrained.
+
+\paragraph{GAT and popularity.} As a baseline without meta-paths, a graph attention network
+\citep{velickovic2018graph} trained with BPR runs on the union of all relations, with node types
+ignored except for one input projection per type: the homogeneous baseline of the HGB benchmark
+\citep{lv2021hgb}. Users and products come out of the same network, so a user is built from the
+products the user reviewed. Each training step removes its own positive edges from the graph it
+runs on, since a held-out edge is never in the graph. Popularity scores a product by its number of
+training users (ties broken at random) and gives every user the same ranking.

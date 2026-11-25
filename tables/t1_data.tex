@@ -1,0 +1,30 @@
+% t1_data.tex -- T1 of the plan: the data before and after the fixes. Every number is \val{} from
+% numbers.tex (make_numbers.py; sources: audit_before_fix.json and data/AMAZON/audit.json).
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{The data before and after merging duplicate editions and dropping the accounts with at
+    least \val{rule-placeholder-repeats} reviews on one product. Both versions keep the positive
+    reviews and the \val{rule-kcore}-core. Audits of the full data, split seed~\val{split-seed}.}
+  \label{tab:data}
+  \begin{tabularx}{\linewidth}{@{}Lrr@{}}
+    \toprule
+    & Before & After \\
+    \midrule
+    Products / categories & \val{before-products} / \val{before-categories}
+      & \val{after-products} / \val{after-categories} \\
+    Users & \val{before-users} & \val{after-users} \\
+    User--product edges & \val{before-edges} & \val{after-edges} \\
+    Largest user degree & \val{before-maxdeg} & \val{after-maxdeg} \\
+    Duplicate-edition clusters (products in them) & \val{before-clusters} (\val{before-clustered})
+      & \val{after-clusters} (\val{after-clustered}) \\
+    Edges that repeat a user's interaction with another edition & \val{before-copyedges-pct}\%
+      & \val{after-copyedges-pct}\% \\
+    Validation / test edges with a copy in training & \val{before-valleak-pct}\% /
+      \val{before-testleak-pct}\% & \val{after-valleak-pct}\% / \val{after-testleak-pct}\% \\
+    Validation / test edges whose user has a training edge to a product of the same title (an
+      upper bound on the duplicates left) & \val{before-valtitle-pct}\% / \val{before-testtitle-pct}\%
+      & \val{after-valtitle-pct}\% / \val{after-testtitle-pct}\% \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

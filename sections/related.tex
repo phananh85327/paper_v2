@@ -1,0 +1,51 @@
+% sections/related.tex -- Section 2 (paper_v2, cut in C3 from the full version's related work).
+% Every work cited was read for this project; each claim was checked against the paper's text.
+% B1 (25 November) brought in the author's review of the Vietnamese related work (paper_v2_vn,
+% L10): the paragraph on evaluating search methods, which frames this study as search against
+% manual design with random draws as the control, and the sentence on time-ignoring splits moved to
+% the conclusion's limitations.
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Meta-path-based recommendation.} MCRec weighs a meta-path-based context of each
+user--item pair with co-attention \citep{hu2018leveraging}. HGRec \citep{shi2020hgrec},
+FHRec \citep{mu2021fhrec} and AMERec \citep{yan2021attention} learn one embedding per meta-path and
+fuse the embeddings with attention as HAN \citep{wang2019heterogeneous} does, and metapath2vec learns node
+embeddings from random walks that follow a meta-path \citep{dong2017metapath2vec}. All of these
+take their meta-paths as given.
+
+\paragraph{Automatic meta-path discovery.} Query-based methods find the $k$ best meta-paths
+connecting two given nodes \citep{zhu2020topk}. Search-based methods learn which paths (or richer
+structures) a model should use. GEMS evolves sets of meta-structures with a genetic algorithm
+\citep{han2020genetic} and RMS extends meta-path sets with reinforcement learning
+\citep{ning2022automatic}. Both judge candidates by the recommender itself. Training a recommender
+per candidate is slow: in DiffMG's comparison, GEMS's search took \val{diffmg-gems-min} to
+\val{diffmg-gems-max} GPU minutes per dataset, against at most \val{diffmg-own-max} for three runs of
+DiffMG's search \citep[Table~5]{ding2021diffmg}. One-shot searches in the style of DARTS
+\citep{liu2019darts} cut this cost by training only once: all candidates are trained together in
+one supernet. DiffMG searches for a meta-graph that guides a graph neural network for node
+classification and user--item link prediction, then keeps the best of three search runs by
+validation score \citep{ding2021diffmg}. LMSPS samples paths progressively from a large candidate
+set \citep{li2024longrange}. We adapt LMSPS to link prediction. Unlike GEMS and RMS, it judges its
+sets with its own network, a stand-in for HAN (Sections~\ref{sec:res-weights}
+and~\ref{sec:conclusion}).
+
+\paragraph{Evaluating search methods.} In HAN, LMSPS compares its paths with HAN's original paths,
+which were chosen by hand \citep[Table~4]{li2024longrange}. It compares them with random paths only
+in its own network, where the random ones score lower \citep[Table~1]{li2024longrange}. A random
+control is needed: in neural architecture search, random search with early stopping did at least as well as ENAS (a
+leading search method) on two standard benchmarks \citep{li2019random}. On average,
+state-of-the-art search policies ``perform similarly to the random policy''
+\citep{yu2020evaluating}. Among meta-path searches, RMS beats a random control: in the same time,
+the control trains the recommender on random sets and keeps the one with the best validation score
+\citep{ning2022automatic}. GEMS and DiffMG do not compare with random structures
+\citep{han2020genetic,ding2021diffmg}. We compare the searched sets with the manual ones in HAN and
+metapath2vec (where the paths are used), with random draws from the search's own candidates as the
+control.
+
+\paragraph{Evaluating recommenders.} Simple baselines often hold their own: of
+\val{dacrema-algos} recent neural recommenders, only \val{dacrema-repro} could be reproduced with
+reasonable effort, and \val{dacrema-beaten} of those could often be beaten by simple heuristics
+\citep{dacrema2019progress}. We therefore report popularity and a type-blind GAT, a strong baseline
+on heterogeneous graphs \citep{lv2021hgb}. Sampled metrics can order models differently from a
+full ranking \citep{krichene2022sampled}, so we report every path set on full ranking as well.

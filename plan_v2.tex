@@ -1,0 +1,488 @@
+% plan_v2.tex -- the plan for paper_v2: cutting the paper to about 8 pages of main text in ACM's
+% two-column format. A standalone document (pdfLaTeX). The full version and its own plan
+% (paper_plan.tex) stay in ../paper/ and are not edited for this one.
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{microtype}
+\DisableLigatures[-]{encoding = T1, family = tt*}   % -- stays two hyphens in commands
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\DeclareRobustCommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\setlist{itemsep=2pt,topsep=3pt}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+
+\title{Plan for \texttt{paper\_v2}\\[4pt]\large The 8-page version in ACM's two-column format}
+\author{}
+\date{7 November 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Status}
+
+C1 to C8 are done (7 and 8 November). C1 set up \code{paper_v2/}; the author's answers to its
+questions are decisions V1--V4 (Section~3), V5 was added after C2, V6 after C3, V7 after C4, V8
+after C5, V9 after C6 and V10 after C7. C2 moved Tables~2 and~6 and the random draws of Table~3 to the appendix and made
+Figures~2 and~4 one column wide (the numbers of that time; since C6, Figure~1 is in the appendix
+as Figure~4 and the others are Figures~1--3): the main text went from about 11.5 to about 10.3
+pages, with no argument cut. C3 cut the abstract and Sections~1--3 from 2,199 to 1,634 words, C4
+cut the prose of Sections~4--6 from 3,477 to 2,610 words, C5 that of Section~7 from 1,731 to 1,097,
+and C6 moved Figure~1 to a new Appendix~A and cut Sections~8--10 and the end statements from 1,489
+to 1,056 words, moving details to the appendices and the settings list to Table~8. After C6, the main text,
+from the abstract to the conclusion, ended about 7.96 pages in, within 8 pages, and the end
+statements about 8.23 pages in. Figure and appendix numbers in this plan are those of their
+time: C6's new Appendix~A moved the earlier Appendices~A--F to B--G, and C7 swapped the numbers of
+Tables~6 and~7. C7 put the appendix in the paper's order: A the study at a glance, B the data and
+the graph, C the changes from the base papers, D the search in detail, E the random draws and the
+settings, F the full results, G reproducibility. C8 closed the last 0.23 page: with about 150
+words cut or moved to the appendix (the abstract kept as V6 says), the code statement shortened as
+V9 allows, and Figures~1--3 set a little lower, the paper from the abstract to the acknowledgments
+now fills exactly 8 pages, and the references begin at the top of page~9. A review of the whole
+version on 8 November changed three sentences (one each in Related work, Results and Appendix~E,
+for clarity) and a few source comments that named old appendix letters; and, at the author's
+choice, ten data shares that printed as whole percentages now have one decimal, as the rounding
+rule asks (\code{make_numbers.py}, committed as \code{0bf5bc1}, which \code{numbers.tex}
+now records). After the HAN repository's commits \code{a9141af} and \code{2ea02f6}, which changed
+which results the recommendation tools run, Appendix~G says so, the ``More paths'' paragraph of
+Appendix~F names HAN, as the full version's sentence does (for metapath2vec, neither size wins),
+and \code{numbers.tex} records \code{2ea02f6}; no other value changed. The work
+on this version is complete until the venue is chosen.
+
+On 25 November, after the author's review of the Vietnamese version (\code{paper_v2_vn/}, part
+L10), parts B1--B5 were planned to bring that review into this version
+(Section~\ref{sec:backport}). The author decided D1--D6 there the same day, and B1--B5 are
+done: the back-port is complete. A final review of both versions followed the same day
+(Section~\ref{sec:final}).
+
+\section{The target and why}
+
+About \textbf{8 pages of main text} (from the abstract to the conclusion) in ACM's two-column
+format (\code{acmart}, \code{sigconf}), plus up to 2 pages of references; the appendix becomes
+supplementary material. Eight pages is the strictest limit among the likely venues, so one
+version fits all of them:
+\begin{itemize}
+  \item RecSys, reproducibility papers (2026 rules): 8 pages plus up to 2 for references
+        (\url{https://recsys.acm.org/recsys26/camera-ready/});
+  \item SIGIR, reproducibility track (2023 rules, the latest posted): 9 pages plus references
+        (\url{https://sigir.org/sigir2023/?p=1167});
+  \item CIKM, full papers (2026 rules): 10 pages including any appendix, plus 2 for references
+        (\url{https://cikm2026.diag.uniroma1.it/full-research-papers/}).
+\end{itemize}
+HAN's paper has about 9 pages of main text. If the venue chosen allows more, a page is easily
+added back; the venue's own rules, once known, override this target.
+
+\section{Rules}
+
+\begin{itemize}
+  \item \code{paper/} is the full version (thesis, arXiv, a journal such as TORS) and is not edited
+        for this one, except for the corrections of V5. \code{paper_v2/} has its own \code{sections/}, \code{tables/},
+        \code{figures/} and \code{numbers.tex}; the three \code{.bib} files stay shared at the
+        project root.
+  \item Nothing is lost from the work: what leaves the main text moves to the appendix
+        (supplementary material) or stays in the full version. No number, limitation or caveat is
+        dropped from the paper as a whole.
+  \item No new claims, and the claims keep the qualifiers of the full version (``mostly'', seed
+        noise, the warm-up limit, the small schema). Every number stays \verb|\val{key}| from
+        \code{numbers.tex}, made by the LMSPS repository's script:
+        \code{python paper/make_numbers.py --lmsps . --han ../han-improve --out <paper_v2>}.
+  \item Each part ends with a clean compile (0 warnings) and a page count, and sends only the files
+        it changed.
+\end{itemize}
+
+\section{Decisions}
+
+\begin{enumerate}[label=V\arabic*]
+  \item \textbf{Target (7 November):} about 8 pages of main text, up to 2 pages of references,
+        and the appendix as supplementary material (Section~1).
+  \item \textbf{The full version stays (7 November):} \code{paper/} keeps both its main files,
+        \code{paper.tex} (one column) and \code{paper_acm.tex} (the full text in ACM's format,
+        useful for arXiv), unchanged by this work.
+  \item \textbf{Shared bibliographies (7 November):} the three \code{.bib} files stay at the
+        project root for both versions, so a correction, such as the publisher details that
+        ACM's style asks for (C8), shows in both reference lists.
+  \item \textbf{File name (7 November):} the main file is \code{paper_v2/paper_v2.tex}.
+  \item \textbf{Fixes go into both versions (7 November):} an error found during the cut is
+        corrected in \code{paper/} as well, the one exception to V2. The first: Setup and Threats
+        said every table shows popularity; it appears beside the models in the main comparison,
+        the user-group table and HAN's full results only. C3 found two more. The abstract's last
+        sentence now says that it holds for HAN, as the full version's claims do (in
+        metapath2vec the manual sets beat the average random draw). And Related work and Threats
+        said full ranking is reported for every result, while the warm-up check reports sampled
+        Hit@10 only; they now say every path set. C4 found one more, in the ACM layout only:
+        acmart ends a run-in heading with a full stop unless it ends with one already, and a stop
+        after a capital does not count, so the headings LMSPS, HAN and GAT printed two stops;
+        they now end with \verb|\@.| instead of a plain stop. C5 found three more, all in figure
+        text. Figure~3's caption said that the main sets' three seeds ``differ by at most''
+        their standard deviation, which understates how far they spread; it now says standard
+        deviation. Its description for screen readers called it a bar chart, but it is a dot
+        plot. And in this version only, Figure~2's description still said left and right after
+        C2 had stacked its panels. C6 found one more, in the full version only, since this
+        version's discussion no longer has the sentence: it said that the manual sets do as well
+        as an average random draw, where Results says about as well. C8 changed two shared
+        things that were not errors: the publisher, address and page fields of the shared
+        bibliographies (V3), and the sides of the \code{PCP} and \code{PPP} labels, set in
+        \code{make_numbers.py}, which also move in the full version's figure. The review after C8
+        changed a third: ten data shares, such as the 75\% of the test edges on books and music,
+        printed as whole percentages against the rounding rule and now have one decimal.
+  \item \textbf{The front (7 November, the author's answers after C3):} this version's
+        introduction has no roadmap paragraph, which the full version keeps. Related work leaves
+        out the one-line accounts of how the cited methods work (HGRec, FHRec, AMERec, Zhu et
+        al.'s path ranking, GEMS's predictor, RMS's reward), which stay in the full version, and
+        its spare words go to Sections~4--8. The abstract keeps its
+        length, 19 words over its target, until the venue's cap is known.
+  \item \textbf{Making up the gap (8 November, the author's answer after C4):} Sections~1--6 end
+        about 260 words over their budget, which would leave the paper about 0.3 page over 8.
+        C5 and C6 therefore cut deeper than first planned: Results to about 1,600 words instead
+        of 1,850 (for example, the user-group and product-group details to the appendix) and
+        Discussion to about 430 instead of 450, with every number and caveat kept in the paper.
+        If the paper is still over 8 pages after C6, C8 moves Figure~1, the overview of the
+        study, to the appendix.
+  \item \textbf{Figure~1 moves in C6 (8 November, the author's answer after C5):} a scratch
+        build showed that the paper cannot reach 8 pages without V7's fallback unless C6 cuts
+        about 300 words more than its targets. So C6, not C8, moves Figure~1, the overview of
+        the study, to the appendix, and then cuts what the measured gap still needs, about 100
+        words beyond its targets. The introduction's pointer to Figure~1 then names the
+        appendix.
+  \item \textbf{The last 0.23 page (8 November, the author's answer after C6):} the gap left after
+        C6 is the length of the end statements, and Sections~8--10 are at about their targets. So
+        C8 trims about 220 words from the sections that ended over theirs (the setup, Results,
+        the data section, the introduction and the abstract), moving details to the appendix and
+        keeping every number and caveat. Only if that is not enough does C8 shorten the code
+        statement to a pointer to the reproducibility appendix; the AI statement stays as it is.
+        Whether the chosen venue counts the end statements towards its limit is checked once the
+        venue is known.
+  \item \textbf{The appendix (8 November, the author's answers after C7):} it keeps the compact
+        layout, its tables following its text in numbered order, unless the venue asks otherwise;
+        page breaks that keep each table beside its section would cost 2--4 mostly empty pages.
+        And it stays in the same PDF, after the references, until the venue is chosen; if the
+        venue wants supplementary material as a separate file, it is split off then, keeping its
+        letters so that the main text's references still hold.
+\end{enumerate}
+
+\section{The baseline and the budget}
+
+Measured on 7 November in this folder's ACM layout. Before C2: 10,363 words from the abstract to
+the conclusion, about 11.5 pages. After C2: 9,997 words, about 10.3 pages, plus the two end
+statements and the acknowledgments (311 words, about 0.3 page), which count towards the limit at
+most venues. The popularity fix (V5) added 10 words, so C3 started from 10,007. After C3: 9,443
+words; the main text ends about 9.9 pages in, the end statements about 10.2. After C4: about
+8,570 words; the main text ends about 9.0 pages in, the end statements about 9.4. After C5: about
+7,940 words; the main text ends about 8.5 pages in, the end statements about 8.9. After C6, with
+Figure~1 in the appendix: about 7,440 words; the main text ends about 7.96 pages in, the end
+statements about 8.23. A word count includes
+the text of the tables and figures that sit on a section's pages, so it is a guide, not an exact
+share; after C4, Table~2 moved onto the first page of Results, so the C4 column gives each
+section's words as if the floats had stayed (the count before C4 minus the prose cut). At about
+970 words a page, 8 pages with the statements hold about 7,400 words of main text; measured after
+C4, a page holds about 940. V7 lowers the targets of Results and Discussion so that the
+total, with Sections~1--6 as they are, stays at about 7,380 words. Results ended 153 words over
+its target. Moving Figure~1 to the appendix, V7's fallback, tried in a scratch build after C5,
+brings both ends about 0.25 page earlier; with that, C6 has to cut about 100 words more than its
+targets for the end statements to finish within 8 pages. V8 moves that step from C8 to C6. C6
+brought Sections~8--10 and the end statements to about their targets, not 100 words below them:
+cutting further would have removed arguments from the discussion. About 0.23 page, the length of
+the end statements, is left to C8. After C8, the paper from the abstract to the acknowledgments
+fills exactly 8 pages and the references begin at the top of page~9; the table does not track C8's
+small cuts by section.
+
+{\footnotesize
+\begin{tabularx}{\textwidth}{@{}lrrrrrrL@{}}
+  \toprule
+  & \multicolumn{5}{c}{After} & & \\
+  \cmidrule(lr){2-6}
+  Section & C2 & C3 & C4 & C5 & C6 & Target & Mainly by \\
+  \midrule
+  Abstract (with CCS and keywords) & 248 & 219 & 219 & 219 & 219 & 200 & one sentence fewer \\
+  1 Introduction & 864 & 670 & 670 & 670 & 673 & 650 & no findings repeated from the abstract; a
+    shorter contribution list \\
+  2 Related work & 719 & 495 & 495 & 495 & 495 & 550 & tighter paragraphs \\
+  3 Preliminaries & 369 & 250 & 250 & 250 & 250 & 250 & shorter definitions \\
+  4 Data & 1,184 & 1,184 & 916 & 916 & 916 & 850 & the twin-product check to the appendix; a
+    shorter McAuley comparison \\
+  5 Method & 1,797 & 1,797 & 1,448 & 1,448 & 1,306 & 1,350 & shorter vote and leakage paragraphs;
+    Figure~1 to the appendix (V8) \\
+  6 Experimental setup & 1,205 & 1,211 & 961 & 961 & 961 & 850 & the settings list to the appendix
+    (Table~8 has it) \\
+  7 Results & 2,387 & 2,387 & 2,387 & 1,753 & 1,753 & 1,600 & recommendation popularity, the
+    $\delta$ check, user and product groups to the appendix; shorter cost quotations (V7) \\
+  8 Discussion & 704 & 704 & 704 & 704 & 442 & 430 & ``Two metrics'' merged; tighter paragraphs
+    (V7) \\
+  9 Threats to validity & 361 & 366 & 366 & 366 & 294 & 260 & a tighter list \\
+  10 Conclusion & 159 & 160 & 160 & 160 & 137 & 130 & \\
+  \midrule
+  Total & 9,997 & 9,443 & 8,576 & 7,942 & 7,446 & 7,120 & \\
+  End statements and acknowledgments & 311 & 311 & 311 & 311 & 235 & 220 & C6 \\
+  \bottomrule
+\end{tabularx}\par}
+
+\section{The parts}
+
+{\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.2\textwidth}L>{\raggedright\arraybackslash}p{0.15\textwidth}@{}}
+  \toprule
+  Part & What it does & Status \\
+  \midrule
+  C1 Set up & \code{paper_v2/}: its own copy of the ACM version, compiling on its own; this plan
+    & done, 7 November \\
+  C2 Tables and figures & 4 figures and 4 tables in the main text; Figures~2 and~4 one column
+    wide; Tables~2 and~6 and the random draws of Table~3 to the appendix (a new Appendix~A);
+    about 1.25 pages saved & done, 7 November \\
+  C3 Front & abstract, Sections 1--3 to the budget: 2,199 to 1,634 words; the roadmap
+    paragraph dropped; two claims corrected in both versions (V5) & done, 7 November \\
+  C4 Data, method, setup & Sections 4--6 to the budget: prose 3,477 to 2,610 words, 275 over
+    the budget; cluster sizes, the McAuley figures, the twin check, the title vocabulary and the
+    ancestor links to Appendix~A, the runs' agreement and the vote's null to a new Appendix~C,
+    the settings list to Table~8; no number dropped; one ACM heading fix (V5) & done,
+    7 November \\
+  C5 Results & Section 7 to the budget, about 1,600 words (V7): prose 1,731 to 1,097 words,
+    1,753 with its floats; ``What the search finds'' merged into ``What HAN does with the paths'';
+    the paths' ranks and the $\delta$ check to Appendix~C; the user groups, more paths, the path
+    weights and preferences, and HAN against metapath2vec to Appendix~E; no number dropped; three
+    fixes in figure text (V5) & done, 8 November \\
+  C6 Discussion and end & Figure~1 to a new Appendix~A (V8); Sections 8--10 and the two end
+    statements from 1,489 to 1,056 words: ``Two metrics'' merged into the opening and then, with
+    its details, into Appendix~F; the threats that the setup already states shortened; the list of
+    recommendation tools to Appendix~G; the paragraph on the user side kept; no number dropped
+    & done, 8 November \\
+  C7 Supplementary material & everything moved in C2--C6 found in the appendix; the random draws
+    from the data appendix to the settings (now ``The random draws and the settings''); the 22
+    references to an appendix checked against their targets; three missing pointers added (Table~10
+    and the two metrics in Results, Tables~9 and~10 in the setup); the compact layout kept, since
+    page breaks that keep each table beside its section cost 2--4 mostly empty pages; whether the
+    appendix becomes a separate PDF waits for the venue (V10) & done, 8 November \\
+  C8 Final pass & 8 pages: about 150 words cut or moved to Appendices~E and~G (the setup, Results,
+    the introduction, related work, the discussion; the abstract kept, V6), the code statement
+    shortened to a pointer to Appendix~G (V9), Figures~1--3 set 0.6--1.6\,cm lower; the main text
+    with the end statements and acknowledgments ends on page~8; every number still from
+    \code{numbers.tex} and every typed number a design constant; the claims of every changed
+    sentence checked against the full version; 0 LaTeX warnings, and BibTeX's 40 notices down to
+    9 by publisher, address and page fields in the shared bibliographies (V3), the 9 left having
+    no value to give (ICLR and PMLR have no publisher address, papers without page numbers, one
+    page count that only the published TOIS copy would show); the labels of \code{PCP} and
+    \code{PPP} moved apart in \code{make_numbers.py}, which the author committed as
+    \code{1b90835}: run from that commit, the script reproduces every figure file, and
+    \code{numbers.tex} changes only in the commit it records; the package & done, 8 November \\
+  \bottomrule
+\end{tabularx}\par}
+
+\section{Back-port of the Vietnamese review (B1--B5)}\label{sec:backport}
+
+\textbf{Why.} From 20 to 22 November the author reviewed the Vietnamese version by hand
+(\code{paper_v2_vn/}, part L10, decisions N17--N32 in its plan). This version has not changed since
+10 November, so it now takes over that review, in five parts of one request each. The source is
+the final \code{paper_v2_vn}: the author's own build of 22 November, which matches the assistant's
+copy file for file. The Vietnamese text before L10 is a sentence-by-sentence translation of this
+version, so comparing the two Vietnamese texts shows which English sentences change. L10 changed
+30 files, with about 900 lines in and 800 out.
+
+\textbf{What is ported and what is not.}
+\begin{itemize}
+  \item \emph{Ported:} every change of fact, claim, framing, structure, number, citation or
+        cross-reference. The main ones: search compared with manual design, with the random sets as
+        the control (N29); a verdict that depends on the context (N30); the abstract and the
+        introduction as the author reviewed them (N18, N21, N22); the related-work changes (N27);
+        no Discussion or Threats section (N26); no CCS concepts (N19); no appendix but a
+        supplementary document, with the parts of the appendix that moved into the text (N31).
+  \item \emph{Not ported:} what concerns Vietnamese only. That covers the terms for meta-path
+        (N17), random sets, embeddings, path weights, path instances and input features
+        (N22--N25), ancestor categories (N32) and a repository, and the comma before ``and'' (N20).
+  \item \emph{Decided by the author:} D1--D6 below.
+\end{itemize}
+
+\textbf{How.}
+\begin{enumerate}
+  \item For each file, compare the Vietnamese before L10 with the final Vietnamese. Each changed
+        Vietnamese sentence points to the English sentence it was translated from.
+  \item A change of substance is written into the English, in the English paper's style and with
+        its wording wherever the meaning did not change. A Vietnamese-only change is left out.
+  \item Every number stays a \verb|\val| from \code{numbers.tex}, which needs no rebuild: it has the
+        same 1,262 keys as the Vietnamese one, including the 518 that the final Vietnamese uses.
+        Each citation keeps the scope checked in L10.
+  \item Each part ends with a pdfLaTeX build with 0 warnings, a check that the English and the
+        Vietnamese say the same things, and a package of the changed files and the PDF only.
+\end{enumerate}
+
+\textbf{Decisions (the author, 25 November).}
+\begin{enumerate}[label=D\arabic*]
+  \item \emph{Title:} the descriptive title, as in the Vietnamese (N17): ``Cost and Effectiveness
+        of Meta-Path Search for HAN-Based Product Recommendation''. The subtitle stays.
+  \item \emph{Semicolons and close commas:} the author's rules for the Vietnamese hold for the
+        English too. Its 150 semicolons (text, tables, figures and PDF keywords) go, as in N20, and
+        no new sentence puts two commas close together.
+  \item \emph{AI statement:} the English follows the author's Vietnamese wording (N28). It no
+        longer says that the assistant helped draft and edit the text, and it says that the
+        assistant helped write the script.
+  \item \emph{CCS concepts:} removed, as in N19. The keywords follow the Vietnamese, with ``manual
+        meta-path design'' instead of ``random baselines''.
+  \item \emph{Appendix:} a supplementary document, \code{supplement_v2.tex}, as V1 and N31 say,
+        which the paper does not refer to.
+  \item \emph{Length:} not a concern in B1--B5, which translate. The author looks at the length
+        afterwards, and B4 only reports where the main text ends.
+\end{enumerate}
+
+{\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.14\textwidth}L>{\raggedright\arraybackslash}p{0.28\textwidth}@{}}
+  \toprule
+  Part & What it ports & Files \\
+  \midrule
+  B1 Front & the title (D1), the CCS concepts and the keywords (D4); the abstract (N18, N29, N30);
+    Section~1 (N21, the author's introduction of N22, N29, N30); Section~2 (N27, and the new
+    paragraph on how a search method is judged, N29)
+    & \code{paper_v2.tex}, \code{sections/abstract.tex}, \code{intro.tex}, \code{related.tex} \\
+  B2 Sections 3--6 & Section~3; Section~4 (the input features, the McAuley data page as a footnote
+    from the appendix, no appendix pointers); Section~5 (the author's final text: no opening
+    pointers, the runs' agreement in the text, the one-standard-error rule and the warm-up as
+    reworded); Section~6 (three kinds of sets with the random sets as the control, the rank, why
+    Recall@10 and Precision@10 are not reported, seeds and statistics, the key settings and
+    stopping epochs, the software); Table~3 with the ten random sets side by side and HAN's
+    validation pick marked; Table~1 and Figure~1. The largest part.
+    & \code{sections/prelim.tex}, \code{data.tex}, \code{method.tex}, \code{setup.tex},
+    \code{tables/t1_data.tex}, \code{t3_sets.tex}, \code{figures/f2_ties.tex} \\
+  B3 Results & Section~7: 7.1 (\code{a2} and \code{c} with Figure~2, the range over user groups);
+    7.2 renamed for the random control (the cheapest choice, HAN against metapath2vec); 7.3
+    renamed for cost against effectiveness (the author's paragraph, the search's GPU hours as the
+    yardstick); 7.4 with why the searched sets lose (from Section~8, marked untested) and the
+    correlation within the random sets; 7.5 with why GAT leads (from Section~8) and its lead by
+    user group; 7.6 as reworded; Tables~4 and~7, Figures~2 and~3
+    & \code{sections/results.tex}, \code{tables/t4_main.tex}, \code{t7_cost.tex},
+    \code{figures/f3_sets.tex}, \code{f4_weights.tex} \\
+  B4 Conclusion and end & Sections~8--10 become one Conclusion (N26, N30): the verdict that depends
+    on the context, the lesson that a search should be judged by the recommender it serves, the
+    limitations with the two minor ones, future work. The code statement as in the Vietnamese, the
+    AI statement (D3). The paper without its appendix (D5), the last page checked, every
+    cross-reference resolved, the length reported (D6)
+    & \code{sections/discussion.tex}, \code{statements.tex}, \code{paper_v2.tex} \\
+  B5 Supplement and final pass & \code{supplement_v2.tex} from the appendix: sections A--H with the
+    new ``Other limitations'', tables S1--S7 and figure S1, the paper's numbers through the
+    \code{xr} package. The appendix's L10 changes and those of Tables~2, 3b, 5, 6, 8, 9 and
+    Figure~4. A \code{latexmkrc} for pdfLaTeX with the \code{xr} rule and the check for the
+    \code{.bib} files. Both documents with 0 warnings, a last check of every number, citation and
+    claim against the Vietnamese, this plan, and the full folder with the three \code{.bib} files
+    and both PDFs
+    & \code{supplement_v2.tex} and \code{latexmkrc} (new), \code{sections/appendix.tex},
+    \code{tables/t2_graph.tex}, \code{t3b_random.tex}, \code{t5_groups.tex}, \code{t6_changes.tex},
+    \code{t8_settings.tex}, \code{t9_full.tex}, \code{figures/f1_pipeline.tex}, \code{plan_v2.tex} \\
+  \bottomrule
+\end{tabularx}\par}
+
+\textbf{B1, done 25 November.} The title is now the descriptive one, broken after ``Search'' so
+that ``HAN-Based Product Recommendation'' stays on one line. The CCS concepts are a comment that
+says how to restore them, the keywords and PDF keywords end with ``manual meta-path design'', and
+the PDF keywords are separated by commas. The abstract, Section~1 and Section~2 say what the
+reviewed Vietnamese says. Their semicolons are gone, and the new sentences put no two commas close
+together. Two old sentences with a short aside between commas now use parentheses (``paths (or
+richer structures)'', ``ENAS (a leading search method)''). The English keeps ``one-shot'' for
+LMSPS and DiffMG's kind of search, which the Vietnamese dropped only because its own words read as
+a search run once, and keeps Yu et al.'s quotation, which the Vietnamese paraphrased to avoid
+quoting English. The sentence on time-ignoring splits left Section~2 for the conclusion (B4). Its
+two citations stay in Section~9 until then, so the 25 references are unchanged. \code{LMSPS} is no
+longer hyphenated (a \verb|\hyphenation| entry). The build has 0 warnings and 14 pages, and the
+main text still ends 8.02 pages in.
+
+\textbf{B2, done 25 November.} Sections~3--6 say what the reviewed Vietnamese says. There are no
+appendix pointers, and the McAuley data page is now the footnote that gives the quotation's source.
+The input features are described as the author did (the product's group and LSA title vector, the
+user's hashed binary vector). Section~5 follows the author's rewording: the leakage controls, the
+one-standard-error window, the runs' agreement in the text, the last sentence on the six-path
+choice and the reason for the warm-up. Section~6 compares the searched sets with the manual ones,
+with the random draws as the control. It numbers the manual principles, spells out the rank, says
+why Recall@10 and Precision@10 are not reported, and gives the key settings, the stopping epochs
+and the software. As in the Vietnamese, its manual item no longer says ``with AI assistance'',
+which the introduction, the sets table and the AI statement still say. The sets table lists all 24
+sets, with the random draws side by side and HAN's validation pick marked. Two English-only choices
+were made. ``Sampled'' is used for the negatives and LMSPS's paths, so that ``draws'' means the
+random sets, as the Vietnamese does with its own words. GAT is a ``baseline'' in Section~5, where
+the Vietnamese still says control. Section~4's pointer for the split's limitation stays on
+Section~9 until B4 removes that section. These files have no semicolons, and the new sentences put
+no two commas close together. The build has 0 warnings and 15 pages, and the main text ends 8.20
+pages in.
+
+\textbf{B3, done 25 November.} Section~7 says what the reviewed Vietnamese says. 7.2 is now ``The
+random control''. It places the searched and the manual sets among all 24 with the random draws as
+the control, and it gives the cheapest choice (from Section~8) and HAN against metapath2vec (a
+Spearman correlation from the appendix). 7.3 is now ``Cost against effectiveness'', the author's
+paragraph. The hand design's time was not recorded, so the search's GPU hours are the yardstick:
+hand design is cheaper while it takes less, and the search has not bought HAN better results. 7.4
+ends with why the searched sets lose (from Section~8, with the caveat that the check only locates
+the loss) and gives the correlation within the random draws. 7.5 explains why GAT leads (from
+Section~8), with its lead by user group. 7.1 gives the range over user groups, and no appendix
+pointer is left in Section~7. Tables~3 and~4 and Figures~2 and~3 have no semicolons now. Section~8
+still holds the moved paragraphs until B4 merges Sections~8--10 into the conclusion, so the main
+text ends 8.55 pages in for now. The build has 0 warnings and 15 pages.
+
+\textbf{B4, done 25 November.} Sections~8--10 are now one Conclusion (Section~8), as in the reviewed
+Vietnamese. It gives the verdict that depends on the context. Manual design is the better choice
+when an expert can design the paths in less time than the search's roughly 20 GPU hours. Without an
+expert, search gives sets close to manual design. The random control does at least as well as both,
+and any advantage of search more likely lies in larger schemas. The conclusion then gives the lesson
+that a search should be judged by its recommender, a Limitations paragraph with the two minor
+limitations of the old Threats list, and the future work as a numbered list. The other Threats
+items are covered by Sections~6 and~7.4 or go to the supplementary document. The code statement
+gives the commits, the data rebuild, the run records and \code{make_numbers.py}. The AI statement
+follows the author's Vietnamese wording (D3). The paper has no appendix, Section~4's pointer for
+the split now goes to the conclusion, and no reference to the Discussion, the Threats or the
+appendix is left. Column balancing stays off, as in the Vietnamese, since acmart's
+\verb|\balance| would warn. Length (D6): the main text from the abstract to the conclusion ends
+about 7.9 pages in, within V1's 8 pages. The end statements and acknowledgments end 8.18 pages in,
+and the references fill page~9. The whole main paper has no semicolons, its 25 references are
+unchanged, and the build has 0 warnings and 9 pages.
+
+\textbf{B5, done 25 November.} The appendix is now the supplementary document,
+\code{supplement_v2.tex}, which has the paper's preamble. It has sections A--H (H, other
+limitations, is new), tables S1--S7 and figure S1, and it prints the paper's numbers through the
+\code{xr} package (labels prefixed \code{P-}, printed with \verb|\ref*|). It holds the reviewed
+Vietnamese supplement's changes: the overview figure with the random draws as the control and GAT
+and popularity as baselines, the clearer sentences of the reproducibility section, and no
+semicolons, as in the rest of the English. A \code{latexmkrc} for pdfLaTeX builds both documents,
+with the \code{xr} rule and the check for the \code{.bib} files. From an empty folder,
+\code{latexmk} builds both, and \code{latexmk supplement_v2.tex} builds the paper first.
+\code{numbers.tex} now records the LMSPS commit \code{5e32eb6}, as the Vietnamese does. Run again
+from the two repositories, \code{make_numbers.py} changes nothing else in it or in the figure data.
+The HAN commit stays \code{2ea02f6}, as the two later commits change only the recommendation API.
+A last check against the Vietnamese found that every file of the paper and the supplement uses the
+same numbers, citations and cross-references, with the same headings and number of paragraphs.
+The paper has 9 pages, with the main text ending about 7.9 pages in, and the supplement has 6. Both
+build with 0 warnings and no overfull or underfull box. The back-port is complete.
+
+\section{Final review (25 November)}\label{sec:final}
+
+After B5 the author answered four questions, and a last reading of both versions, papers and
+supplements, followed. The answers:
+\begin{enumerate}
+  \item In the Vietnamese Section~5, GAT is now called a baseline, with the word used for it
+        everywhere else. The Vietnamese word for the control now always means the random draws,
+        except in the author's AI statement, which keeps its wording. Nothing changes in the
+        English.
+  \item The Vietnamese supplement now calls a repository a code base, as the code statement
+        does, instead of the glossary's earlier word. The English supplement keeps
+        ``repository''.
+  \item Short asides between two commas are gone from both versions, in old text as well as
+        new. Each became a parenthesis, a sentence of its own or a sentence without the aside,
+        with the meaning unchanged. Lists keep their commas, and the AI statement is untouched.
+        In the English: the introduction (\code{PUP}), Section~3 (the node types, the positive
+        reviews), Section~4 (the record, \code{PUP}, the share of positive lines, \code{PCCCP},
+        the 5-core, the split), Section~5 (the score, metapath2vec), Section~6 (the searched
+        sets), Section~7.4 (\code{PUPUP}, the near-empty paths), Figure~3's caption, Table~S4,
+        three figure descriptions and three sentences of the supplement. Related work now says
+        that HGRec, FHRec and AMERec fuse their embeddings ``as HAN does'', since ``Like HAN,
+        HGRec, FHRec and AMERec'' read like a list of four.
+  \item The supplements no longer print the branch names, since the commit hashes identify the
+        code. The helper \verb|\codeval| that set them is gone from \code{supplement_v2.tex}.
+\end{enumerate}
+The reading found nothing else to change in the English. Every number is still a \verb|\val|,
+the two versions use the same numbers, citations and cross-references in every file, and the
+visible text has no semicolon. Both documents build with 0 warnings and no overfull or underfull
+box: the paper has 9 pages, with the main text ending about 7.9 pages in, and the supplement 6.
+
+\end{document}

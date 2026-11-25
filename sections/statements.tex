@@ -1,0 +1,24 @@
+% sections/statements.tex -- the code and data statement and the AI statement (paper_v2, cut in C6
+% from the full version's). B4 (25 November) brought in the reviewed Vietnamese version
+% (paper_v2_vn, L10): the code statement gives the commits, the data rebuild and the run records
+% itself, as there is no appendix, and the AI statement follows the author's Vietnamese wording (N28,
+% D3 in plan_v2.tex). The details are in the Reproducibility section of the supplementary document.
+\section*{Code and data availability}
+The code is public: \url{https://github.com/phananh85327/LMSPS} holds the data pipeline and the
+search, and \url{https://github.com/phananh85327/han-improve} the models and the evaluation. The
+results come from commit \texttt{\val{repo-lmsps-commit}} of the first code base and commit
+\texttt{\val{repo-han-commit}} of the second. The records of every run are stored with the two code
+bases. In the first, the script \code{hgb/generate_data.bat} rebuilds the cleaned data from SNAP's
+raw file (which we do not redistribute) and the script \code{paper/make_numbers.py} computes every
+number, table and figure of the paper from those records.
+
+\section*{Use of AI assistance}
+We used an AI assistant, Claude (Anthropic). The manual path sets were designed with its assistance
+from the principles in Section~\ref{sec:setup}, before any result was known. It reviewed the code,
+suggested directions and fixed errors. It also helped write the script that computes the paper's
+numbers, tables and figures from the run records. The author proposed the study, with its base
+methods, dataset and reference papers, in a project proposal that planned to compare discovered and
+hand-picked meta-paths in HAN and metapath2vec, with GAT as a reference. The author also wrote the
+first versions of both code bases, adapting the original code of LMSPS and HAN to link prediction.
+The author ran every experiment. The author reviewed all of this work and takes full responsibility
+for the content.

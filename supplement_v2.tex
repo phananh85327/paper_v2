@@ -1,0 +1,93 @@
+% supplement_v2.tex -- the supplementary document of paper_v2 (B5, 25 November, as V1 and the
+% Vietnamese version's N31 say): the former appendix of the paper (sections/appendix.tex, with tables
+% t2, t3b, t5, t6, t8, t9 and figure f1), built as a document of its own. Its sections are lettered
+% A-H and its tables and figure numbered S1, S2, ... Numbers without the S (Section 4, Table 3) are
+% the paper's: they are read from paper_v2.aux with the xr package (labels prefixed P-), so the
+% paper is built first. The latexmkrc in this folder does that on its own, also on Overleaf (Menu,
+% Main document: supplement_v2.tex). The preamble is the paper's, copied: keep the two alike.
+% Compile with pdfLaTeX and BibTeX, like the paper. It uses the same three .bib files.
+\PassOptionsToPackage{dvipsnames}{xcolor}
+\PassOptionsToPackage{obeyspaces,spaces}{url}   % \code keeps its spaces and can break at them
+% nonacm: a draft not yet at an ACM venue, so no conference line, copyright block or ACM reference
+% box. For a submission, drop nonacm and add the venue's settings.
+\documentclass[sigconf,nonacm]{acmart}
+\makeatletter
+\@ACM@balancefalse   % no column balancing: acmart's \balance would come in the second column
+\makeatother         % of the last page and only warn that it cannot balance there
+\raggedbottom
+
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\usepackage{xurl}   % long links may break anywhere in the narrow columns
+% File names and meta-paths in typewriter type; they may break only after / _ . or at a space, so
+% a meta-path such as PUPUP is never split.
+\DeclareUrlCommand\codeurl{\def\UrlBreaks{\do\/\do\_\do\.}\def\UrlBigBreaks{}\urlstyle{tt}}
+\DeclareRobustCommand{\code}[1]{\codeurl{#1}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\hyphenation{LMSPS}   % a name: never split as LM-SPS
+% Wide tables and figures span both columns.
+\newenvironment{widetable}[1][tbp]{\begin{table*}[#1]}{\end{table*}}
+\newenvironment{widefigure}[1][tbp]{\begin{figure*}[#1]}{\end{figure*}}
+% Figure colours, as in paper.tex: searched sets blue, manual orange, random draws aqua.
+\definecolor{cSearch}{HTML}{2A78D6}
+\definecolor{cManual}{HTML}{EB6834}
+\definecolor{cRandom}{HTML}{1BAF7A}
+\definecolor{cOther}{HTML}{7C7B76}
+% Every number of the paper: \val{key}, from numbers.tex.
+\input{numbers}
+
+% The paper's numbers. \ref*{P-...} prints them without a link, as the targets are in the other
+% PDF. \addFileDependency (Overleaf's recipe for xr) tells latexmk that this document needs
+% paper_v2.aux, so the rule in latexmkrc builds the paper first when it is missing or old.
+\usepackage{xr}
+\makeatletter
+\newcommand*{\addFileDependency}[1]{%
+  \typeout{(#1)}%
+  \@addtofilelist{#1}%
+  \IfFileExists{#1}{}{\typeout{No file #1.}}}
+\makeatother
+\externaldocument[P-]{paper_v2}
+\addFileDependency{paper_v2.tex}
+\addFileDependency{paper_v2.aux}
+
+% A little more stretch for the long file names of Section G (the Vietnamese version sets the
+% same).
+\setlength{\emergencystretch}{1em}
+
+% This document's tables and figure: Table S1, Figure S1, ...
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+\title[Supplementary Material]{Supplementary Material}
+\subtitle{for the paper ``Cost and Effectiveness of Meta-Path Search\texorpdfstring{\\}{ } for
+  HAN-Based Product Recommendation''}
+\author{Phan Hoang Tuan Anh}
+\email{phananh85327@gmail.com}
+\affiliation{%
+  \department{Faculty of Information Technology}
+  \institution{Ho Chi Minh City University of Industry and Trade (HUIT)}
+  \city{Ho Chi Minh City}
+  \country{Vietnam}}
+
+\begin{document}
+
+\maketitle
+\hypersetup{pdftitle={Supplementary Material: Cost and Effectiveness of Meta-Path Search for
+  HAN-Based Product Recommendation}, pdfauthor={Phan Hoang Tuan Anh}}
+
+This document holds the details that the paper leaves out. Its sections are lettered (A--H), and
+its tables and figure carry the prefix S. Section, table and figure numbers without the prefix (such
+as Section~\ref*{P-sec:data} or Table~\ref*{P-tab:main}) refer to the paper.
+
+\appendix
+\input{sections/appendix}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references,notes_extra,reading_list}
+
+\end{document}

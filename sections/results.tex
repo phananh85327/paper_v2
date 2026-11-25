@@ -1,0 +1,164 @@
+% sections/results.tex -- Section 7 (paper_v2, cut in C5 from the full version's). The details that
+% left it (the paths' ranks, the delta check, the user groups, more paths, the path weights and
+% preferences, HAN against metapath2vec) are in the appendix sections on the search and the full
+% results, which become the supplementary document in B5. B3 (25 November) brought in the reviewed
+% Vietnamese version (paper_v2_vn, L10): the random draws as the control (7.2, with the cheapest
+% choice), cost against effectiveness with the search's GPU hours as the yardstick (7.3), why the
+% searched sets lose (end of 7.4) and why GAT leads (7.5), both from the Discussion, and a few
+% numbers from the appendix in the text. Every number is \val{} from numbers.tex. Tables: T4
+% (tab:main), T7 (tab:cost); figures: F3 (fig:sets), F4 (fig:weights).
+\section{Results}
+\label{sec:results}
+
+All numbers are test results unless stated otherwise.
+
+\subsection{Searched against manual sets}
+\label{sec:res-main}
+
+On the metric fixed in advance, \code{a1} loses to the manual set of its size in both models
+(Table~\ref{tab:main}). In HAN it trails M5 by \val{han-4-hit-diffabs} (\val{han-4-hit-relabs}\%,
+\val{han-4-hit-pt}) and M6 by \val{han-6-hit-diffabs} (\val{han-6-hit-relabs}\%,
+\val{han-6-hit-pt}), \val{han-4-hit-sdx} and \val{han-6-hit-sdx} times the larger seed standard
+deviation. In metapath2vec the gaps are wider: \val{mtv-4-hit-diffabs} (\val{mtv-4-hit-relabs}\%)
+and \val{mtv-6-hit-diffabs} (\val{mtv-6-hit-relabs}\%). On full ranking HAN's sets tie
+(\val{han-4-fhit-pt} and \val{han-6-fhit-pt}). In metapath2vec, \code{a1} ties at four paths
+(\val{mtv-4-fhit-pt}) and loses at six (\val{mtv-6-fhit-pt}). In HAN the loss holds for \code{a2}
+and \code{c} too (Figure~\ref{fig:sets}) and in every user group (differences of
+\val{han-6-hit-d3-diff} to \val{han-4-hit-d1-diff}).
+
+\input{tables/t4_main}
+
+\subsection{The random control}
+\label{sec:res-random}
+
+To judge the gap between search and manual design against how much the choice of paths matters at
+all, Figure~\ref{fig:sets} places the searched and the manual sets among all 24, with the random
+draws as the control. Of the eight sets of each size drawn from the same \val{search-cands}
+candidates (three searched and five random), HAN puts the searched sets \val{han-4-pos-hit} at four
+paths and \val{han-6-pos-hit} at six, as validation BPR does. On full ranking they come
+\val{han-4-pos-fhit} at four paths and \val{han-6-pos-fhit} at six. The margins lie within seed
+noise: the best searched set reaches \val{han-f4c-hit-s1} at four paths and \val{han-f6a1-hit-s1}
+at six, against \val{han-r4-hit-min} and \val{han-r6-hit-min} for the weakest draws. So the places
+show that the search does not beat its own candidates, not that every draw beats it. The manual
+sets do about as well as an average draw: M5 reaches \val{han-m5-hit-mean} against a mean of
+\val{han-r4-hit-mean} for the four-path draws (range \val{han-r4-hit-min}--\val{han-r4-hit-max}),
+and M6 \val{han-m6-hit-mean} against \val{han-r6-hit-mean}
+(\val{han-r6-hit-min}--\val{han-r6-hit-max}).
+
+\input{figures/f3_sets}
+
+The choice of paths thus moves HAN little: all \val{han-4-nsets} four-path sets lie within
+\val{han-4-span} Hit@10 of each other, and all \val{han-6-nsets} six-path sets within
+\val{han-6-span}. Choosing by validation works: over the 24 sets, validation BPR and test Hit@10
+have a Spearman correlation of \val{han-valtest-rho} (\val{han-valfull-rho} with full-ranking
+Hit@10). The validation pick is a random draw and reaches \val{han-r6d2-hit-s1}, which no other set
+beats on the metric fixed in advance. The cheapest choice is thus to draw a few sets and keep the
+one with the best validation score. In metapath2vec the comparison with chance is mixed: the
+searched sets come \val{mtv-4-pos-hit} of eight at four paths (above the average draw) but
+\val{mtv-6-pos-hit} at six (below it). The two models also prefer different sets: over the 23 sets
+with a path through users, their Hit@10 values have a Spearman correlation of only
+\val{han-mtv-rho}.
+
+\subsection{Cost against effectiveness}
+\label{sec:res-cost}
+
+The hand design used no GPU, and its time was not recorded either (Table~\ref{tab:cost}). Earlier
+work also describes this cost only in words \citep[][App.~D]{han2020genetic,li2024longrange}. LMSPS
+even leaves the time for hand design out of its efficiency comparison, together with its own search
+time \citep[App.~E.1]{li2024longrange}. The search's cost still gives us a yardstick: the
+\val{search-runs-total} search runs took about \val{search-total-h} GPU hours, not counting the time
+to adapt the code. Hand design is cheaper than the search as long as it takes less than this. We
+think this is plausible on a schema with only three node types, where the manual sets were designed
+from four principles in one session and the density checks took a few CPU minutes. Meanwhile, the
+search gives sets that trail the manual ones by \val{han-4-hit-relabs}\% and
+\val{han-6-hit-relabs}\% on the metric fixed in advance and only tie them on full ranking. On this
+schema the search's cost has therefore not bought HAN better results than hand design. The random
+control costs nothing and also does at least as well as both. On full ranking the random draws
+average at least as high, though with a wider spread (\val{han-r4-fhit-min}--\val{han-r4-fhit-max}
+and \val{han-r6-fhit-min}--\val{han-r6-fhit-max}).
+
+\input{tables/t7_cost}
+
+\subsection{What HAN does with the paths}
+\label{sec:res-weights}
+
+Figure~\ref{fig:weights} compares the search's preference for each path with HAN's weight for it.
+The two agree on paths through users. \code{PUPUP} (which links products through two users) is in
+all \val{searched-with-pupup} searched sets and \code{PUPPUP} in \val{searched-with-puppup}. Both
+rank near the top of the search's candidates. HAN never drops them or \code{PUP} and weights all
+three above an equal share. They disagree on categories. Each searched set holds
+\val{searched-empty-min} to \val{searched-empty-max} near-empty category paths. The search ranks
+these high, but HAN keeps only one of them per set with a weight of \val{han-empty-kept-min} to
+\val{han-empty-kept-max} (\val{han-empty-kept-f4c} for \code{c} at four paths), so the six-path
+searched sets work like four-path sets. The dense category paths of the manual sets rank low in the
+search but get about an equal share or more in HAN (median \val{kind-cat-weight}). No searched set
+holds a category path that reaches most products.
+
+\input{figures/f4_weights}
+
+Among the sets of four and of six paths, that lack separates the searched sets from all the others.
+At both sizes, every set with a category path that reaches almost every product beats every set
+without one: \val{han-4-dense-min}--\val{han-4-dense-max} against
+\val{han-4-nodense-min}--\val{han-4-nodense-max} at four paths (the closest pair within seed noise)
+and \val{han-6-dense-min}--\val{han-6-dense-max} against \val{han-6-nodense-max} at six. Across the
+\val{pref-cand-n} sets drawn from the candidates, the more the search likes a set's paths, the
+worse HAN does with it: test Hit@10 and the paths' mean $\alpha$ rank (lower for a stronger
+preference) have a Spearman correlation of \val{pref-cand-rho} (\val{pref-cand-pt}). This relation
+rests on the searched sets: within the ten random draws alone, the coefficient is only
+\val{pref-random-rho} (\val{pref-random-pt}).
+
+\paragraph{Where the loss sits.} A single step along the category hierarchy (\code{PCCP}) links
+\val{bg-pccp-reach-products-pct}\% of the products to another product. These are mostly DVDs and
+videos, which hold \val{bg-pccp-reach-test-pct}\% of the test edges. On the products \code{PCCP}
+does not reach, the searched sets trail the sets with a dense category path by \val{bg-4-gapabs-no}
+Hit@10 at four paths and by \val{bg-6-gapabs-no} at six (seed~1). On the products it reaches, they
+trail by only \val{bg-4-gapabs-reach} and \val{bg-6-gapabs-reach}. The loss thus sits mostly on the
+books and music for which the searched sets' category paths are empty.
+
+\paragraph{Why the searched sets lose.} The check above points to the near-empty category paths. In
+the search, a product that such a path cannot reach gets an all-zero feature for it. The zero still
+carries information: the products that one hierarchy step does reach (mostly DVDs and videos) hold
+\val{pccp-reach-train-pct}\% of the training edges but only \val{bg-pccp-reach-products-pct}\% of
+the products and hence of the random negatives. The empty paths thus reveal the product group and
+part of a product's popularity. In HAN this cue is mostly gone: every product keeps its own features
+through a self-loop in every graph, so an empty channel only repeats them. HAN drops most of these
+channels. The searched sets then lack a category path that reaches books and music, and that is
+where they lose most. The search may also make less of a dense path than HAN, as it averages the
+path's features over all endpoints, while HAN attends over \val{han-set-topk} selected neighbours.
+However, the product-group check only locates the loss and does not show that a dense category path
+would remove it.
+
+\subsection{Other models}
+\label{sec:res-models}
+
+GAT beats both meta-path models on every metric and in every user group. It reaches a Hit@10 of
+\val{gat-hit-mean}, against \val{han-r6d2-hit-s1} for HAN's validation pick and
+\val{mtv-m5-hit-mean} for metapath2vec's. On full ranking it reaches \val{gat-fhit-mean}, against
+\val{han-r6d2-fhit-s1} for HAN. Its lead over HAN is largest for users with few training edges:
+\val{gat-lead-d1} for 1--5 edges, \val{gat-lead-d2} for 6--20 and \val{gat-lead-d3} for 21 or
+more. Unlike the two meta-path models, GAT builds each user from the products the user reviewed,
+while HAN and metapath2vec learn a free vector per user that gets little signal from a handful of
+edges. This fits HGB's finding that a homogeneous GAT with proper inputs is a strong baseline
+\citep{lv2021hgb}. It also suggests that here the way users are represented matters more than which
+product-side meta-paths are chosen. Our design leaves out user-side meta-paths, which would test
+this.
+
+HAN beats metapath2vec on sampled Hit@10 in all \val{han-wins-sampled} sets, but metapath2vec wins on
+full ranking in \val{mtv-wins-full}, so the order of the two depends on the metric. Every model
+clears the popularity floor (\val{pop-hit} sampled, \val{pop-fhit} on full ranking) except
+metapath2vec on M4, which reaches \val{mtv-m4-hit-s1}: that set has no path through users, so the
+users stay untrained.
+
+\subsection{Sensitivity}
+\label{sec:res-sensitivity}
+
+With a path-weight warm-up of \val{wu5-warmup} epochs instead of \val{han-set-beta-warmup}
+(seed~1, all 24 sets), HAN trains worse on average (\val{wu5-diff-mean} Hit@10, from
+\val{wu5-diff-min} to \val{wu5-diff-max}), drops more paths (\val{wu5-dropped} weights below
+\val{weight-drop}, against \val{han-dropped}) and orders the sets differently (Spearman
+\val{wu5-rho} with the main runs). The searched sets then come \val{wu5-4-pos} of eight at both
+sizes instead of last. At six paths the seed-1 comparison reverses: \code{a1} reaches
+\val{wu5-f6a1-hit} against \val{wu5-m6-hit} for M6, which keeps only \val{wu5-m6-kept} of its six
+paths. This check uses one seed and was not planned in advance, so it does not change the main
+result, but it shows that the comparison depends on how HAN learns its path weights: our
+conclusions hold for the \val{han-set-beta-warmup}-epoch warm-up.

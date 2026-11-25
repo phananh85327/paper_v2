@@ -1,0 +1,51 @@
+% f1_pipeline.tex -- F1 of the plan: the study at a glance (TikZ; no data file).
+% Colours: \colorlet in paper.tex (searched cSearch, manual cManual, random cRandom).
+\begin{widefigure}[htbp]
+  \centering
+  \resizebox{\linewidth}{!}{%
+  \begin{tikzpicture}[
+      font=\footnotesize,
+      box/.style={draw=black!45, rounded corners=2pt, align=center, inner sep=4pt,
+        text width=#1, minimum height=11mm, execute at begin node={\hyphenpenalty=10000}},
+      box/.default=36mm,
+      way/.style={box=44mm, draw=#1, fill=#1!10, line width=0.7pt},
+      flow/.style={-{Stealth[length=2.2mm]}, black!55, line width=0.6pt}]
+    % data
+    \node[box] (raw) {Amazon-Meta (SNAP)\\\val{raw-records} products,\\\val{raw-reviews} review lines};
+    \node[box, below=4mm of raw] (clean) {Cleaning: editions merged, \val{placeholder-ids} accounts dropped,
+      positive reviews, \val{rule-kcore}-core};
+    \node[box, below=4mm of clean] (graph) {Graph: products, categories, users.
+      User--product edges split 80/10/10};
+    % three ways to choose the paths
+    \node[way=cManual, right=12mm of raw] (hand) {\textbf{By hand}: manual sets M1--M8,
+      designed with AI assistance, fixed in advance};
+    \node[way=cSearch, below=4mm of hand] (search) {\textbf{By search}: LMSPS for link prediction,
+      \val{search-runs} runs per set size, combined into \code{a1}, \code{a2}, \code{c}};
+    \node[way=cRandom, below=4mm of search] (random) {\textbf{At random (the control)}: 5 draws per size from
+      the same \val{search-cands} candidates};
+    % models and test
+    \node[box=36mm, right=12mm of search] (models) {HAN and metapath2vec, trained on each of the
+      24 path sets};
+    \node[box=36mm, right=10mm of models] (test) {Test edges: sampled Hit@10 (fixed in advance),
+      NDCG@10, full ranking, user groups};
+    \node[box=36mm, below=4mm of models, yshift=-6mm] (refs) {GAT on the whole graph (types
+      ignored) and popularity};
+    % arrows
+    \draw[flow] (raw) -- (clean);
+    \draw[flow] (clean) -- (graph);
+    \draw[flow] (graph.east) -- ++(4mm,0) |- (hand.west);
+    \draw[flow] (graph.east) -- ++(4mm,0) |- (search.west);
+    \draw[flow] (graph.east) -- ++(4mm,0) |- (random.west);
+    \draw[flow] (hand.east) -- ++(4mm,0) |- (models.west);
+    \draw[flow] (search.east) -- (models.west);
+    \draw[flow] (random.east) -- ++(4mm,0) |- (models.west);
+    \draw[flow] (models) -- (test);
+    \draw[flow] (graph.south) -- ++(0,-6mm) -| ([xshift=-6mm]refs.west) -- (refs.west);
+    \draw[flow] (refs.east) -| (test.south);
+  \end{tikzpicture}}
+  \Description{A flow diagram. The Amazon-Meta data is cleaned and turned into a graph. Two boxes (by hand and by search) choose meta-path sets from the same candidates, and a box at random is the control. Every set goes to HAN and metapath2vec. GAT and popularity use the whole graph. All models are tested on the same held-out edges.}
+  \caption{The study. From the same candidate paths, HAN's meta-path sets are chosen by hand or by
+    search, with random draws as the control. Every set is trained in HAN and metapath2vec and
+    tested on the same held-out edges, with GAT and popularity as baselines that use no meta-paths.}
+  \label{fig:pipeline}
+\end{widefigure}

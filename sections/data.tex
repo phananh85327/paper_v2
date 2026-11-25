@@ -1,0 +1,86 @@
+% sections/data.tex -- Section 4 (paper_v2, cut in C4 from the full version's). The details that
+% left it (cluster sizes, the McAuley data, the twin check, the title vocabulary, linking every
+% ancestor) are in the appendix section on the data (appendix.tex), which becomes the supplementary
+% document in B5. B2 (25 November) brought in the reviewed Vietnamese version (paper_v2_vn, L10):
+% the McAuley data page as the source of the quotation, a footnote here, no appendix pointers, and
+% the features as the author described them. Every number is \val{} from numbers.tex.
+\section{Data}
+\label{sec:data}
+
+Amazon-Meta\footnote{\url{https://snap.stanford.edu/data/amazon-meta.html}}
+\citep{leskovec2007viral} is a crawl of Amazon's product pages from the summer of 2006, with
+\val{raw-records} product records for books, music CDs, DVDs and VHS videos, \val{raw-reviews}
+review lines and \val{raw-categories} categories. A record gives a product's title and group, the
+products that customers also bought, its category paths from the root to a leaf and its reviews.
+Each review has a customer ID, a date, a rating and votes.
+
+\subsection{Cleaning the raw data}
+
+\paragraph{Duplicate editions.} Amazon showed the reviews of a work on the page of each of its
+editions and formats, and the crawl recorded every page. The same review line therefore appears
+under several products: the DVD and the VHS of one film share \val{example-shared} of their
+\val{example-lines} review lines, and \val{raw-shared-pct}\% of all raw review lines also appear
+under another product. A filter that only removes repeated (customer, product) pairs keeps these
+copies. In the data built that way (Table~\ref{tab:data}, \emph{before}),
+\val{before-clustered-pct}\% of the products sit in \val{before-clusters} clusters of editions, and
+\val{before-valleak-pct}\% of the validation edges and \val{before-testleak-pct}\% of the test edges
+have a copy in training: the same customer reviewing another edition of the same work. The copy
+reveals the held-out edge. Such leakage leads to overestimated performance
+\citep[\S3.3]{kaufman2012leakage}: a model can score well by finding copies instead of learning
+what users like. The path that finds copies best is the shortest co-review path (\code{PUP}), so the
+leak flatters exactly the kind of path a meta-path study compares.
+
+We merge two products when they share at least \val{rule-edition-shared} identical review lines
+(customer, date, rating, votes and helpful votes) that make up at least
+\val{rule-edition-overlap-pct}\% of the smaller product's lines, ignoring lines that appear under
+more than \val{rule-edition-maxrun} products. This joins \val{edition-pairs} pairs into
+\val{edition-clusters} clusters, and each cluster keeps the member with the most review lines.
+The later Amazon review data of \citet{mcauley2015image} have the same kind of duplicate,
+``mainly due to near-identical products whose reviews Amazon merges, e.g.\ VHS and DVD versions of
+the same movie'',\footnote{Quoted from the data page
+\url{https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html} (read on 5 November 2026).} and
+come with de-duplicated files. To our knowledge, no such step has been reported for Amazon-Meta.
+
+\paragraph{Other steps.} We drop every customer account with at least
+\val{rule-placeholder-repeats} reviews on a single product (\val{placeholder-ids} accounts,
+\val{placeholder-lines} review lines). A review is a positive interaction when its rating is at
+least \val{rule-pos-rating} (as for \val{raw-pos-pct}\% of the raw lines), unless at least
+\val{rule-helpful-votes} readers voted on it and fewer than \val{rule-helpful-pct}\% found it
+helpful, which drops \val{raw-unhelpful-pct}\% of the positive reviews. A user counts once per
+work. A \val{rule-kcore}-core then keeps the users and products with at least \val{rule-kcore}
+interactions each (\val{kcore-iterations} rounds). It is applied after merging and the account
+rule so that it counts only distinct interactions.
+
+\input{tables/t1_data}
+
+\paragraph{The effect.} Merging and the account rule shrink the graph from \val{before-edges} to
+\val{after-edges} user--product edges and cut the test edges with a copy in training from
+\val{before-testleak-pct}\% to \val{after-testleak-pct}\% (Table~\ref{tab:data}). A second check, for
+products with exactly the same set of reviewers, finds \val{twin-test} test edges with such a twin
+in training. Leaving them out changes no run's test Hit@10 by more than \val{twin-maxdiff}.
+
+\subsection{The graph and the split}
+
+A product's features are its product group and a \val{title-dim}-dimensional LSA vector of its
+title. A user's features are only a \val{user-dim}-dimensional binary vector hashed from the
+customer ID. They are never built from the user's reviews, because those reviews are the edges to
+predict.
+
+\paragraph{Leaf categories and near-empty paths.} Products link to their leaf categories only.
+Linking every ancestor as well would put \val{cat-all-largest-pct}\% of the products into one
+category. However, a single step along the hierarchy rarely leads to
+another product: \code{PCCP} links a product to another one for \val{pccp-reach-dvd-pct}\% of the
+DVDs and \val{pccp-reach-video-pct}\% of the videos, but for only \val{pccp-reach-book-pct}\% of the
+books and \val{pccp-reach-music-pct}\% of the music. We call the six candidate paths with such a
+step \emph{near-empty}: \code{PCCP}, \code{PCCPP}, \code{PCCPPP}, \code{PCCPCP}, \code{PCCPUP} and
+\code{PPCCPP}. In HAN's graphs each leaves
+\val{empty-isolated-min-pct}--\val{empty-isolated-max-pct}\% of the products without a neighbour,
+while \code{PCCCP} (which reaches sibling categories through their parent) leaves
+\val{pcccp-graph-isolated}. Books and music make up \val{group-bookmusic-pct}\% of the products and
+\val{test-bookmusic-pct}\% of the test edges, so these paths come back in Section~\ref{sec:results}.
+
+\paragraph{The split.} We split the \val{after-edges} user--product edges once at random into
+\val{split-train} training, \val{split-val} validation and \val{split-test} test edges (80/10/10,
+split seed~\val{split-seed}). Every graph and every walk uses the training edges only. Validation
+edges guide the search and every choice made during training, and test edges only report results.
+The split ignores review dates, a limitation we return to in Section~\ref{sec:conclusion}.

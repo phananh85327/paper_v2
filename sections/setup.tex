@@ -1,0 +1,75 @@
+% sections/setup.tex -- Section 6 (paper_v2, cut in C4 from the full version's). B2 (25 November)
+% brought in the reviewed Vietnamese version (paper_v2_vn, L10): the searched sets against the
+% manual ones with the random draws as the control, the manual principles as numbered sentences,
+% the rank spelled out, why Recall@10 and Precision@10 are not reported, the key settings and the
+% software in the text (Table~\ref{tab:settings} in the appendix holds every setting), and
+% Table~\ref{tab:cost} the search's run times. Every number is \val{} from numbers.tex. Table:
+% tables/t3_sets.tex (T3).
+\section{Experimental setup}
+\label{sec:setup}
+
+\paragraph{Path sets.} We compare the searched sets with the manual ones, with random draws as the
+control: 24 sets in all (Table~\ref{tab:sets}).
+\begin{itemize}
+  \item \emph{Searched:} \code{a1}, \code{a2} and \code{c} for each set size
+        (Section~\ref{sec:fleet}).
+  \item \emph{Manual:} M1--M8, designed from four stated principles. (1) One path per kind of
+        evidence (co-purchase \code{PP}, co-review \code{PUP}, shared categories \code{PCP}).
+        (2) Short paths first. (3) No near-empty paths (Section~\ref{sec:data}), so \code{PCCCP}
+        (which reaches sibling categories) stands in for \code{PCCP}. (4) Main sets of the searched
+        sets' sizes, M5 and M6. The other six each test one idea, such as behaviour only (M3) or
+        categories only (M4).
+  \item \emph{Random (the control):} five sets per size, drawn uniformly without replacement from
+        the search's own \val{search-cands} candidates, to show how much the choice of paths
+        matters.
+\end{itemize}
+The manual sets and the random draws were fixed before any search or model result on the cleaned
+data, and the searched sets before any HAN run. All \val{sets-distinct-paths} distinct paths in the
+24 sets are among the \val{search-cands} candidates, so the search could have chosen any of them.
+
+\input{tables/t3_sets}
+
+\paragraph{Metrics.} Each validation and test edge $(u, p)$ is ranked against \val{split-negatives}
+negatives, sampled once among the products $u$ has no edge to. The rank $r$ of $p$ is the number of
+candidates that score at least as high as $p$, $p$ included. Thus $p$ always ranks below the
+candidates that tie with it, so ties count against the model. We report Hit@10 ($[r \le 10]$) and
+NDCG@10 ($[r \le 10] / \log_2(r + 1)$) over the \val{split-test} test edges. We do not report
+Recall@10 and Precision@10, since with one relevant product per ranking they equal Hit@10 and
+Hit@10$/10$. Sampled Hit@10 is the metric we fixed in advance, but against \val{split-negatives}
+random products a popular product wins easily: popularity alone reaches \val{pop-hit}. Sampled
+metrics can also order models differently from a full ranking \citep{krichene2022sampled}. As a
+check, we also rank each test edge against every product its user has no edge to (nearly all
+\val{after-products}), and report Hit@10 per edge and Recall@20 per user, with all of a user's test
+products ranked together, over the \val{test-users} users with a test edge. Popularity is reported
+beside the models in Table~\ref{tab:main}. The test edges are also split by the user's number of
+training edges (1--5, 6--20 and 21 or more).
+
+\paragraph{Settings.} Each model has one configuration, fixed before the runs and used for every
+path set. Nothing was tuned per set or on test results. The settings were chosen to fit one GPU
+with \val{env-gpu-mem}\,GB and to train stably, not searched for accuracy. HAN has
+\val{han-set-num-heads} attention heads of \val{han-set-head-dim} dimensions per path and
+\val{han-set-hidden}-dimensional user vectors. GAT has \val{gat-set-layers} layers of
+\val{gat-set-hidden} dimensions. metapath2vec learns \val{mtv-set-dim}-dimensional embeddings with a
+window of \val{mtv-set-window}. Every optimiser is Adam, with a learning rate of \val{mtv-set-lr} for
+metapath2vec and \val{han-set-lr} for the search and the other models. Training stops when
+validation BPR has not improved by more than \val{han-set-min-delta} for \val{han-set-patience}
+epochs (\val{mtv-set-patience} checks for metapath2vec), and the best checkpoint is tested once.
+Every reported run stopped early: HAN at epochs \val{han-stop-min}--\val{han-stop-max} of at most
+\val{han-set-stage}.
+
+\paragraph{Seeds and statistics.} The split is fixed, so the seeds change only the training. The
+main comparison (\code{a1} against M5 and M6, in HAN and in metapath2vec) and GAT run with seeds
+1--3, the other sets with seed~1. Across the three seeds, test Hit@10 of the main runs varies by at
+most \val{main-hit-sd-max} (standard deviation), so small differences between sets run at one seed
+are within seed noise, and we do not rank such sets finely. We compare the main sets with Welch's
+two-sided $t$-test over the three seeds of each side \citep{welch1947generalization}. With only
+three seeds per side, the test can hardly detect small differences, so we also give each difference
+in units of the seeds' standard deviation. Only sampled Hit@10 was fixed in advance. The other
+metrics and their $p$-values are secondary and not corrected for multiple comparisons. Relations
+between sets use Spearman's correlation with a permutation $p$-value from \val{perm-shuffles}
+shuffles. The \emph{validation pick} is the set with the lowest validation BPR.
+
+\paragraph{Hardware and cost.} All runs used one NVIDIA \val{env-gpu} with Python \val{env-python}
+and PyTorch \val{env-torch} (CUDA \val{env-cuda}). The \val{search-runs-total} search runs took about
+\val{search-total-h} GPU hours (Table~\ref{tab:cost}), and the model runs about \val{models-hours}
+GPU hours.

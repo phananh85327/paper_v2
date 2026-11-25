@@ -1,0 +1,67 @@
+% t6_changes.tex -- T6 of the plan (appendix): what this study changes in the three base methods,
+% condensed from the note on the base papers (Sections 3, 5 and 6). The base papers' own settings
+% are typed from the papers; this study's settings are \val{} from numbers.tex (run records).
+\begin{widetable}[htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.15}
+  \caption{What this study changes in LMSPS \citep{li2024longrange}, HAN
+    \citep{wang2019heterogeneous} and metapath2vec \citep{dong2017metapath2vec}, and why.}
+  \label{tab:changes}
+  \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.27\linewidth}
+      >{\raggedright\arraybackslash}p{0.34\linewidth}L@{}}
+    \toprule
+    In the paper & In this study & Why \\
+    \midrule
+    \multicolumn{3}{@{}l}{\emph{LMSPS}} \\
+    node classification, cross-entropy & user-to-product link prediction: BPR on the dot product
+      of a product vector and a free \val{search-hidden}-d user vector & the task of this study \\
+    every path from the target type to any type, raw features included & \val{search-cands}
+      product-to-product paths of 1--\val{search-hops} hops, each merged with its reverse, no
+      self-loops & each path must give HAN a product graph \\
+    path features from the whole graph & $\alpha$ learned on validation edges. The weight step
+      reads user-path features rebuilt without each quarter of the training edges & a training
+      edge is also an edge of the graph \\
+    $M = 30$ paths sampled from a pool of $V = 60$, 200 epochs, 20 of warm-up (none in the
+      released code) & $M = 4$ or 6 from $V = \val{search-pool}$, \val{search-epochs} epochs,
+      \val{search-warmup} of warm-up, dropout \val{search-dropout} & the set sizes of the study,
+      so that every set of the final pool can be scored \\
+    200 sets sampled from the final pool, each scored with fresh Gumbel noise & all
+      \val{search-sets} sets scored once, without noise & the noise moved a set's score more than
+      the gaps between sets \\
+    one search & \val{search-runs} searches per set size, combined by averaged scores with the
+      one-standard-error rule and by a vote checked against a shuffled null & one run cannot rank
+      its best sets \\
+    LMSPS's own network retrained on the chosen paths & no retraining: the sets go to HAN and
+      metapath2vec & the question is whether the paths help HAN \\
+    \midrule
+    \multicolumn{3}{@{}l}{\emph{HAN}} \\
+    node classification, cross-entropy & link prediction, BPR. HAN embeds the products, each user is
+      a free \val{han-set-hidden}-d vector & every path set gets the same user side \\
+    all meta-path neighbours & the \val{han-set-topk} strongest after every hop, symmetric,
+      training edges only, a self-loop & unpruned long paths reach most products \\
+    each path's attention layer from its own random start. Path weights learned from the first
+      epoch & the same start for every path. Weights held equal for \val{han-set-beta-warmup}
+      epochs & otherwise one path takes all the weight within a few epochs \\
+    learning rate 0.005, L2 0.001, dropout 0.6, 8 heads of 8 dimensions, patience 100 & learning
+      rate \val{han-set-lr}, no L2, dropout \val{han-set-feat-drop}, \val{han-set-num-heads} heads
+      of \val{han-set-head-dim}, patience \val{han-set-patience}, at most \val{han-set-stage}
+      epochs & sized for one \val{env-gpu-mem}~GB GPU \\
+    bag-of-words features, 2--3 short symmetric paths & LSA title vector and product group,
+      \val{sets-size-min}--\val{sets-size-max} paths of up to \val{sets-hops-max} hops & the data and the sets compared \\
+    \midrule
+    \multicolumn{3}{@{}l}{\emph{metapath2vec}} \\
+    one symmetric path scheme per run & all paths of a set walked together & one embedding per set,
+      as for HAN \\
+    negatives from the node-frequency distribution & \val{mtv-set-negatives} negatives sampled
+      uniformly within the node type & simpler \\
+    1,000 walks per node, length 100, window 7, 128 dimensions & \val{mtv-set-walks-per-node} walks
+      per node and path, length \val{mtv-set-walk-length}, window \val{mtv-set-window},
+      \val{mtv-set-dim} dimensions & cost, the size of HAN's vectors \\
+    \midrule
+    \multicolumn{3}{@{}l}{\emph{GAT, as a comparison model}} \\
+    in the HAN paper, run on each single meta-path & one type-blind GAT on all relations together,
+      without meta-paths & the homogeneous comparison of this study \\
+    \bottomrule
+  \end{tabularx}
+\end{widetable}

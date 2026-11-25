@@ -1,0 +1,44 @@
+% f4_weights.tex -- F4 of the plan: HAN's path weights against the search's preference, by kind
+% of path. Data: f4_*.dat, written by make_numbers.py (search records; HAN seed-1 logs).
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=\linewidth, height=5.6cm,
+        xmin=0, xmax=33, ymin=-0.1, ymax=2.05, xtick={1,8,16,24,32},
+        xlabel={Search's preference: mean $\alpha$ rank (1 = best of \val{search-cands})},
+        ylabel={HAN's weight (1 = an equal share)},
+        tick label style={font=\scriptsize}, label style={font=\footnotesize},
+        ymajorgrids, grid style={black!8}, axis line style={black!60}, tick style={black!60},
+        legend style={font=\scriptsize, at={(0.5,1.02)}, anchor=south, draw=none,
+          legend columns=2, /tikz/every even column/.append style={column sep=6pt}},
+        legend cell align=left]
+      \draw[black!45, dashed] (axis cs:0,1) -- (axis cs:33,1);
+      \addplot[only marks, mark=*, mark size=2.6pt, mark options={fill=cSearch, draw=white,
+          line width=0.4pt}] table[x=rank, y=weight] {figures/f4_users.dat};
+      \addlegendentry{through users (\val{kind-users-paths} paths)}
+      \addplot[only marks, mark=square*, mark size=2.4pt, mark options={fill=cManual, draw=white,
+          line width=0.4pt}] table[x=rank, y=weight] {figures/f4_empty.dat};
+      \addlegendentry{near-empty category (\val{kind-empty-paths})}
+      \addplot[only marks, mark=triangle*, mark size=3pt, mark options={fill=cRandom, draw=white,
+          line width=0.4pt}] table[x=rank, y=weight] {figures/f4_cat.dat};
+      \addlegendentry{other category (\val{kind-cat-paths})}
+      \addplot[only marks, mark=diamond*, mark size=3pt, mark options={fill=cOther, draw=white,
+          line width=0.4pt}] table[x=rank, y=weight] {figures/f4_pp.dat};
+      \addlegendentry{products only (\val{kind-pp-paths})}
+      \addplot[only marks, mark=none, point meta=explicit symbolic,
+          visualization depends on={value \thisrow{anchor}\as\labelanchor},
+          nodes near coords, nodes near coords style={font=\scriptsize\ttfamily, text=black!80,
+            anchor=\labelanchor, inner sep=2.5pt}]
+        table[x=x, y=y, meta=label] {figures/f4_labels.dat};
+    \end{axis}
+  \end{tikzpicture}
+  \Description{A scatter plot with one point per path: the search's mean preference for the path against HAN's mean weight for it. Paths through users are preferred by both. Near-empty category paths are preferred by the search but get almost no weight in HAN. Dense category paths are ranked low by the search but used by HAN.}
+  \caption{What HAN does with the paths: each point is a path, at the search's mean preference for
+    it (both set sizes) and HAN's mean weight for it over the sets that hold it (seed 1). The two
+    agree on paths through users. They disagree on the near-empty category paths, which the search
+    ranks high and HAN mostly drops (\val{kind-empty-dropped} of \val{kind-empty-uses} uses get a
+    weight below \val{weight-drop}). They also disagree on the dense category paths, which the search
+    ranks low and HAN uses.}
+  \label{fig:weights}
+\end{figure}

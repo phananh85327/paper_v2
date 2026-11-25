@@ -1,0 +1,77 @@
+% t9_full.tex -- every path set in HAN and in metapath2vec, every metric, seed 1 (appendix).
+% Values from numbers.tex (results.csv): <model>-<set>-<metric>-s1; GAT and popularity as in T4/T5.
+% \fullrow{label}{model tag}{set}: one row of six metrics.
+\newcommand{\fullrow}[3]{#1 & \val{#2-#3-hit-s1} & \val{#2-#3-ndcg-s1} & \val{#2-#3-fhit-s1}
+  & \val{#2-#3-fndcg-s1} & \val{#2-#3-frec-s1} & \val{#2-#3-val-s1} \\}
+% \fullbody{model tag}: the 24 sets, by family, as in Table 3.
+\newcommand{\fullbody}[1]{%
+  \multicolumn{7}{@{}l}{\emph{Searched}} \\
+  \fullrow{\code{a1}, 4 paths}{#1}{f4a1}
+  \fullrow{\code{a2}, 4 paths}{#1}{f4a2}
+  \fullrow{\code{c}, 4 paths}{#1}{f4c}
+  \fullrow{\code{a1}, 6 paths}{#1}{f6a1}
+  \fullrow{\code{a2}, 6 paths}{#1}{f6a2}
+  \fullrow{\code{c}, 6 paths}{#1}{f6c}
+  \midrule
+  \multicolumn{7}{@{}l}{\emph{Manual}} \\
+  \fullrow{M1}{#1}{m1}
+  \fullrow{M2}{#1}{m2}
+  \fullrow{M3}{#1}{m3}
+  \fullrow{M4}{#1}{m4}
+  \fullrow{M5}{#1}{m5}
+  \fullrow{M6}{#1}{m6}
+  \fullrow{M7}{#1}{m7}
+  \fullrow{M8}{#1}{m8}
+  \midrule
+  \multicolumn{7}{@{}l}{\emph{Random}} \\
+  \fullrow{4 paths, draw 1}{#1}{r4d1}
+  \fullrow{4 paths, draw 2}{#1}{r4d2}
+  \fullrow{4 paths, draw 3}{#1}{r4d3}
+  \fullrow{4 paths, draw 4}{#1}{r4d4}
+  \fullrow{4 paths, draw 5}{#1}{r4d5}
+  \fullrow{6 paths, draw 1}{#1}{r6d1}
+  \fullrow{6 paths, draw 2}{#1}{r6d2}
+  \fullrow{6 paths, draw 3}{#1}{r6d3}
+  \fullrow{6 paths, draw 4}{#1}{r6d4}
+  \fullrow{6 paths, draw 5}{#1}{r6d5}}
+\newcommand{\fullhead}{%
+  \toprule
+  & \multicolumn{2}{c}{Sampled} & \multicolumn{3}{c}{Full ranking} & \\
+  \cmidrule(lr){2-3}\cmidrule(lr){4-6}
+  Set & Hit@10 & NDCG@10 & Hit@10 & NDCG@10 & Recall@20 & Val.\ BPR \\
+  \midrule}
+
+\begin{widetable}[htbp]
+  \centering
+  \small
+  \caption{HAN on every path set, seed~1 (Table~\ref*{P-tab:main} gives the three-seed means of the
+    main comparison). Sampled: each test edge ranked against \val{split-negatives} negatives.
+    Full ranking: against every product the user has no edge to, with Recall@20 averaged over
+    users. Validation BPR: the loss that early stopping and the validation pick use, lower is
+    better. GAT: mean of three seeds. Popularity has no validation loss.}
+  \label{tab:full-han}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lllllll@{}}
+    \fullhead
+    \fullbody{han}
+    \midrule
+    \multicolumn{7}{@{}l}{\emph{Without meta-paths}} \\
+    GAT & \val{gat-hit-mean} & \val{gat-ndcg-mean} & \val{gat-fhit-mean} & \val{gat-fndcg-mean}
+      & \val{gat-frec-mean} & \val{gat-val-mean} \\
+    Popularity & \val{pop-hit} & \val{pop-ndcg} & \val{pop-fhit} & \val{pop-fndcg} & \val{pop-frec}
+      & -- \\
+    \bottomrule
+  \end{tabular*}
+\end{widetable}
+
+\begin{widetable}[htbp]
+  \centering
+  \small
+  \caption{metapath2vec on every path set, seed~1. Columns as in Table~\ref{tab:full-han}. M4 has
+    no path through users, so its user vectors stay untrained.}
+  \label{tab:full-mtv}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lllllll@{}}
+    \fullhead
+    \fullbody{mtv}
+    \bottomrule
+  \end{tabular*}
+\end{widetable}

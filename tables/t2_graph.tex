@@ -1,0 +1,37 @@
+% t2_graph.tex -- T2 of the plan: the graph and the split. Numbers from numbers.tex
+% (data/AMAZON/meta.json, audit.json, label files; the split rebuilt and checked by make_numbers.py).
+\begin{widetable}[htbp]
+  \centering
+  \small
+  \caption{The graph and the split. Every graph the models see holds the training edges only.}
+  \label{tab:graph}
+  \begin{tabularx}{\linewidth}{@{}lrL@{}}
+    \toprule
+    Node type & Nodes & Features \\
+    \midrule
+    Product (P) & \val{after-products} & \val{title-dim}-d LSA of the title (non-zero for
+      \val{title-coverage-pct}\%) and the product group: book \val{group-book-pct}\%, music
+      \val{group-music-pct}\%, DVD \val{group-dvd-pct}\%, video \val{group-video-pct}\% \\
+    Category (C) & \val{after-categories} & \val{cat-vocab}-d multi-hot vector of the name's tokens (all
+      zero for \val{after-zerocat-pct}\%) \\
+    User (U) & \val{after-users} & \val{user-dim}-d binary vector hashed from the ID. The search, HAN
+      and metapath2vec replace it with a free \val{search-hidden}-d vector \\
+    \midrule
+    Relation & Edges & \\
+    \midrule
+    P--P, also bought & \val{after-alsobought} & product pairs (\val{rel-pp-rows} directed rows), made
+      symmetric \\
+    C--C, parent and child & \val{rel-cc} & \\
+    P--C, leaf category & \val{rel-pc} & a median of \val{after-leafcats-med} per product \\
+    U--P, positive review & \val{rel-up} & split once at random: \val{split-train} training,
+      \val{split-val} validation, \val{split-test} test edges (split seed~\val{split-seed}) \\
+    \midrule
+    \multicolumn{3}{@{}>{\raggedright\arraybackslash}p{\linewidth}@{}}{Training edges per user:
+      median \val{train-deg-med}, mean \val{train-deg-mean}, maximum \val{train-deg-max}. Test
+      edges by the user's number of training edges: \val{testdeg-d1} (1--5), \val{testdeg-d2}
+      (6--20), \val{testdeg-d3} (21 or more) and \val{testdeg-d0} (none). Each validation and
+      test edge is ranked against \val{split-negatives} sampled negatives and against all
+      products.} \\
+    \bottomrule
+  \end{tabularx}
+\end{widetable}

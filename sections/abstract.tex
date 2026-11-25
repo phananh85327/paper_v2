@@ -1,0 +1,18 @@
+% sections/abstract.tex -- the abstract's text (paper_v2, cut in C3 from the full version's).
+% B1 (25 November) brought in the author's review of the Vietnamese abstract (paper_v2_vn, L10):
+% two ways of choosing the paths with random draws as the control, and a verdict that depends on
+% the context. Every number is \val{} from numbers.tex.
+HAN and similar models read a heterogeneous graph through meta-paths, usually chosen by hand. Paths
+found by the LMSPS search improved HAN on node classification, but whether such a search is worth
+its cost in recommendation is untested. On Amazon-Meta, we compare two ways of choosing HAN's
+meta-paths from the same \val{search-cands} candidates: by hand (fixed in advance) and by LMSPS
+adapted to link prediction (combined from \val{search-runs} runs), with random draws as the
+control. Every set is tested in HAN and metapath2vec. The searched sets trail the manual ones by
+\val{han-6-hit-relabs}--\val{han-4-hit-relabs}\% on the metric fixed in advance and only tie them on
+full ranking, after about \val{search-total-h} GPU hours of search. The loss sits mostly on books
+and music, which the searched sets' category paths cannot reach. The random control shows that the
+choice of paths moves HAN little on this schema: all sets of a size lie within \val{han-4-span}
+Hit@10 of each other, and the random draws do at least as well as both ways. For HAN on this small
+schema, automatic search comes fairly close to manual design, so the choice between them depends on
+the context: manual design is better when an expert can do it in less time than the search takes,
+while search gives nearly equivalent sets without domain knowledge.

@@ -1,0 +1,238 @@
+% sections/appendix.tex -- the body of the supplementary document, supplement_v2.tex (plan, WP10;
+% also what C2, C4, C5 and C6 moved out of the main text, put in order in C7). Until B4 it was the
+% paper's appendix. B5 (25 November) brought in the reviewed Vietnamese version (paper_v2_vn, L10):
+% references to the paper are \ref*{P-...} (xr, see supplement_v2.tex), its own sections are called
+% Section A-H, and Section H, other limitations, is new. Its sections follow the
+% paper: the study at a glance, the data (Section 4), changes from the base papers and the search
+% (Section 5), the random draws and the settings (Section 6), full results (Section 7),
+% reproducibility.
+% Sources: the note on the base papers (Sections 3, 5, 6); LMSPS notes, Part 11; HAN notes,
+% Part 11; the run records, logs and scripts of both repositories, checked again on
+% 6 November 2026. Every number is \val{} from numbers.tex.
+\section{The study at a glance}
+\label{app:overview}
+
+Figure~\ref{fig:pipeline} shows the study from the raw data to the test edges
+(Sections~\ref*{P-sec:data}--\ref*{P-sec:setup}).
+
+\input{figures/f1_pipeline}
+
+\section{The data and the graph}
+\label{app:graph}
+
+Table~\ref{tab:graph} summarises the graph and the split of Section~\ref*{P-sec:data}. The rest of
+this section gives details of the data that Section~\ref*{P-sec:data} leaves out.
+
+\paragraph{Merging editions.} The merge rule joins \val{edition-pairs} pairs into
+\val{edition-clusters} clusters of \val{edition-size-min} to \val{edition-size-max} products
+(\val{edition-size-two-pct}\% of them pairs), and leaves \val{raw-works} works out of
+\val{raw-usable} usable product records. For the later and larger Amazon review data of
+\citet{mcauley2015image}, the data's page warns that the raw reviews contain duplicates, and its
+de-duplicated files keep \val{mcauley-dedup-reviews} of its \val{mcauley-raw-reviews}
+reviews.\footnote{\url{https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html}, read on
+5 November 2026.}
+
+\paragraph{Twin products.} A second test looks for products with exactly the same set of
+reviewers. It finds \val{twin-products} products in \val{twin-groups} groups, with \val{twin-test} test
+edges that have such a twin in training. Leaving them out changes no run's test Hit@10 by more than
+\val{twin-maxdiff}.
+
+\paragraph{Title features.} A product's title vector is an LSA vector: TF-IDF over a vocabulary of
+\val{title-vocab} tokens, reduced by truncated SVD to \val{title-dim} dimensions. It is non-zero for
+\val{title-coverage-pct}\% of the products.
+
+\paragraph{Category links.} Products link to their leaf categories only. Linking every ancestor as
+well would give the median product \val{cat-all-median} categories instead of
+\val{after-leafcats-med}, put \val{cat-all-largest-pct}\% of the products into one category and make
+P--C--P walks \val{cat-pcp-ratio} times as dense. With leaf links, \code{PCP} leaves only
+\val{pcp-isolated} products without a neighbour.
+
+\input{tables/t2_graph}
+
+\section{Changes from the base papers}
+\label{app:changes}
+
+Table~\ref{tab:changes} lists what this study changes in the three base methods, and why. Most
+changes follow from the task. LMSPS and HAN were built for node classification. Link prediction
+needs a score for a user--product pair, a loss over such pairs and (in the search) care that a
+training edge does not reach its own features. Other changes make the comparison fair: every path
+set meets the same user side, the same settings and the same stopping rule, in HAN and in
+metapath2vec alike. The rest make the search's decision reproducible: it scores every set of its
+final pool without noise, and many runs are combined into one choice. The base papers' settings
+are as they report them. Ours are those of the runs (Section~\ref{app:settings}).
+
+\input{tables/t6_changes}
+
+\section{The search in detail}
+\label{app:search}
+
+\paragraph{Agreement between runs.} The runs score different sets because their final pools
+differ, but they rank the sets they share alike: two runs' scores on their shared sets have a median
+Spearman correlation of \val{search-agree-4} for four paths and \val{search-agree-6} for six, while
+one set's score varies by \val{search-noise-4} and \val{search-noise-6} (standard deviation) from
+run to run (Section~\ref*{P-sec:fleet}).
+
+\paragraph{The vote against its null.} The vote picks \val{search-vote-4} distinct sets for four
+paths, against a median of \val{search-null-med-4} (90\% range
+\val{search-null-lo-4}--\val{search-null-hi-4}) in the \val{search-null-fleets} fleets whose scores
+are shuffled within each run. For six paths it picks \val{search-vote-6} sets, against
+\val{search-null-med-6} (\val{search-null-lo-6}--\val{search-null-hi-6}). Figure~\ref*{P-fig:ties}b
+shows both.
+
+\paragraph{Ranks of the paths.} Over the \val{search-runs} runs of each size, the mean $\alpha$
+ranks of \code{PUPUP} and \code{PUPPUP} are \val{rank-pupup-4} and \val{rank-puppup-4} of
+\val{search-cands} for four paths, and \val{rank-pupup-6} and \val{rank-puppup-6} for six. The
+dense category paths that the manual sets use rank low: \code{PCP} at \val{rank-pcp-4} and
+\val{rank-pcp-6}, \code{PCCCP} at \val{rank-pcccp-4} and \val{rank-pcccp-6}. Averaged over both
+sizes, the near-empty category paths rank \val{kind-empty-rank} and the dense ones
+\val{kind-cat-rank} (Figure~\ref*{P-fig:weights}).
+
+\paragraph{The search's tolerance.} With $\delta = \val{search-delta-alt}$ instead of
+\val{search-delta}, the vote picks \val{search-vote-alt-4} and \val{search-vote-alt-6} distinct
+sets, against shuffled-score medians of \val{search-null-med-alt-4} and
+\val{search-null-med-alt-6}, so the runs still agree beyond chance. The averaged scores do not
+depend on $\delta$, and so neither do \code{a1} and \code{a2}.
+
+\section{The random draws and the settings}
+\label{app:settings}
+
+With one relevant product per ranking, Recall@10 equals Hit@10 and Precision@10 is Hit@10$/10$,
+so Section~\ref*{P-sec:setup} reports neither. Table~\ref{tab:random} lists the ten random draws of
+Section~\ref*{P-sec:setup}, and Table~\ref{tab:settings} gives every setting of the search and of the
+models. Each setting was fixed before the runs and used for every path set
+(Section~\ref*{P-sec:setup}). The values are read from the run records and logs: the search's from its
+\val{search-runs-total} records (which agree in every setting except the seed and the set size), and
+the models' from the commands and the model descriptions in their logs. Every reported run stopped
+early: HAN at epochs \val{han-stop-min}--\val{han-stop-max} of the \val{han-set-stage} allowed, GAT
+at \val{gat-stop-min}--\val{gat-stop-max} (one seed after a rerun with a higher cap), and
+metapath2vec after \val{mtv-stop-min}--\val{mtv-stop-max} passes.
+
+\input{tables/t3b_random}
+\input{tables/t8_settings}
+
+\section{Full results}
+\label{app:full}
+
+Tables~\ref{tab:full-han} and~\ref{tab:full-mtv} give every metric for every path set at seed~1,
+the seed that every set was run with. Table~\ref*{P-tab:main} gives the three-seed means of the main
+comparison. Across seeds, test Hit@10 of the main runs varies by at most \val{main-hit-sd-max}
+(standard deviation, Section~\ref*{P-sec:setup}), so small differences in these tables are within
+seed noise.
+
+Table~\ref{tab:groups} gives every model's test Hit@10 by the user's number of training edges
+(Section~\ref*{P-sec:res-models}). The rest of this section gives results that
+Section~\ref*{P-sec:results} leaves out.
+
+\paragraph{User groups.} HAN's \code{a1} trails the manual set of its size in every user group: by
+\val{han-4-hit-d1-diff}, \val{han-4-hit-d2-diff} and \val{han-4-hit-d3-diff} at four paths and by
+\val{han-6-hit-d1-diff}, \val{han-6-hit-d2-diff} and \val{han-6-hit-d3-diff} at six, for users with
+1--5, 6--20 and 21 or more training edges. GAT's lead over HAN's validation pick is
+\val{gat-lead-d1}, \val{gat-lead-d2} and \val{gat-lead-d3} in the same groups.
+
+\paragraph{More paths.} More paths help HAN in every family: the searched sets reach
+\val{han-searched6-mean-s1} with six paths against \val{han-searched4-mean-s1} with four, and the
+random draws \val{han-r6-hit-mean} against \val{han-r4-hit-mean}.
+
+\paragraph{Path weights and preferences.} HAN gives \code{PUPPUP}, \code{PUPUP} and \code{PUP}
+\val{weight-puppup}, \val{weight-pupup} and \val{weight-pup} times an equal share, and it drops
+\code{PPCCPP} in all \val{uses-ppccpp} sets that hold it. Over the \val{pref-cand-n} sets drawn from
+the candidates, the mean $\alpha$ rank of a set's paths also has a Spearman correlation of
+\val{pref-cand-val-rho} with HAN's validation BPR (\val{pref-cand-val-pt}). Among the ten random
+draws alone, its correlation with test Hit@10 is weak (\val{pref-random-rho},
+\val{pref-random-pt}), and over all 24 sets it is \val{pref-all-rho} (\val{pref-all-pt}): the
+relation rests on the searched sets.
+
+\paragraph{HAN and metapath2vec.} The two models prefer different sets: over the 23 sets with a
+path through users, their Hit@10 values have a Spearman correlation of only \val{han-mtv-rho}. They
+also recommend very different products. In the full-ranking top 10 of \val{bg-users} test users,
+HAN's products have a median of \val{bg-han-deg-med} training users
+(\val{bg-han-deg-min}--\val{bg-han-deg-max} across the sets). The medians are \val{bg-mtv-deg-med} for
+metapath2vec and \val{bg-gat-deg} for GAT, against \val{bg-all-deg} for an average product. Of HAN's
+recommendations, \val{bg-han-top1-med}\% come from the 1\% most-bought products, against
+\val{bg-gat-top1}\% of GAT's and at most \val{bg-mtv-top1-max}\% of metapath2vec's. By product group, HAN leads
+metapath2vec by \val{bg-han-mtv-dvd} on DVDs and \val{bg-han-mtv-video} on videos but trails it on
+music (\val{bg-han-mtv-music}, medians over the 23 sets). The two swap places between the sampled
+and the full ranking (Section~\ref*{P-sec:res-models}): HAN's popular products win easily against
+\val{split-negatives} random negatives, while metapath2vec's long-tail products do relatively better
+against all products, the kind of disagreement \citet{krichene2022sampled} warn about.
+
+\input{tables/t5_groups}
+\input{tables/t9_full}
+
+\section{Reproducibility}
+\label{app:repro}
+
+\paragraph{Code.} The data pipeline and the search are in the LMSPS repository, the models and the
+evaluation in the HAN repository (the paper's code and data statement). The results in the paper
+come from commit \texttt{\val{repo-lmsps-commit}} of the first and commit
+\texttt{\val{repo-han-commit}} of the second.
+
+\paragraph{Data.} Amazon-Meta comes from SNAP (Section~\ref*{P-sec:data}). The script
+\code{generate_data.bat} in the LMSPS repository (folder \code{hgb}) extracts and cleans the raw
+file, writes the graph files and audits the result, with the settings of Section~\ref*{P-sec:data}.
+Every run records a fingerprint of its split's training edges (\texttt{\val{split-fingerprint}} for
+split seed~\val{split-seed}). The HAN repository's script \code{check_handover.py} confirms that its
+data are those the search ran on.
+
+\paragraph{Environment.} One NVIDIA \val{env-gpu} (\val{env-gpu-mem}\,GB) under Windows, with
+Python \val{env-python}, PyTorch \val{env-torch} built for CUDA \val{env-cuda} and NumPy
+\val{env-numpy}. The search also uses DGL \val{env-dgl}, for its one-time feature propagation on the
+CPU. Each repository's \code{requirements.txt} gives its package versions, and the scripts of both
+run in one conda environment. The model runs took about \val{models-hours} GPU hours:
+\val{han-hours} for the \val{han-runs} HAN runs, \val{mtv-hours} for metapath2vec and
+\val{gat-hours} for GAT.
+
+\paragraph{Commands.} In the LMSPS repository (folder \code{hgb}), \code{run_fleet_v3.bat pilot}
+first checks that two runs with the same seed agree. Then \code{run_fleet_v3.bat final4} and
+\code{final6} run the \val{search-runs} searches of each size, each writing a log and a JSON
+record. Finally, \code{run_fleet_v3.bat reselect} combines them into the sets handed over
+(Section~\ref*{P-sec:fleet}). In the HAN repository, \code{run_all.bat} runs the experiment in stages:
+the data check, the meta-path graphs, two audits, a short memory check, popularity, HAN, GAT,
+metapath2vec, the extra seeds and the results table. With the argument \code{dry}, \code{run_all.bat} prints
+every command without running it. Section~\ref*{P-sec:setup} gives the run times.
+
+\paragraph{Repeatability.} The search uses deterministic GPU kernels, so the seed decides a run: the
+two pilot runs with seed~1 agree in $\alpha$, in the final pool and in all \val{pilot-sets} scored
+sets. HAN's training is not bit-for-bit repeatable on the GPU, but the differences are small. A
+repeat of one run (\code{a1} with four paths, seed~1) stopped at the same epoch with the same best
+epoch (\val{repeat-han-best}), validation BPR (\val{repeat-han-val}) and test Hit@10
+(\val{repeat-han-hit}). In the user groups its Hit@10 differed by at most
+\val{repeat-han-groupdiff}.
+
+\paragraph{Records.} The LMSPS repository keeps every search's log and record
+(\code{hgb/logs/Fleet v3}) with the pilot and the re-selections. The HAN repository keeps every
+model run's log and the results table (\code{output/AMAZON/v3}), the logs of the warm-up check
+(Section~\ref*{P-sec:res-sensitivity}), and the review notes with their scripts (\code{review}),
+among them the output of the check by product group (Section~\ref*{P-sec:res-weights}). The script
+\code{paper/make_numbers.py} in the LMSPS repository computes the numbers, tables and figures of
+the paper and of this document from these records. It also checks that every run used the same data and that the two
+pilot runs agree.
+
+\paragraph{Recommendation tools.} The HAN repository has tools to show what a trained model
+recommends. The script \code{recommend.py} lists a user's top products and a product's most
+similar ones. The scripts \code{recommend_6path.bat} and \code{recommend_4path.bat} run it on GAT,
+and on a representative result of each kind of path set for HAN and for metapath2vec. The script
+\code{recommend_api.py} serves the same queries over HTTP.
+
+\paragraph{Not in the repositories.} The repositories do not hold (1) the raw file (which stays
+on SNAP's site), (2) the extraction's intermediate files and the graph's node file (which
+\code{generate_data.bat} rebuilds) and (3) the trained models (\code{.pt} files), which the check by
+product group (Section~\ref*{P-sec:res-weights}) and the recommendation tools need.
+
+% =============================================================================================
+\section{Other limitations}
+\label{app:limits}
+
+Section~\ref*{P-sec:conclusion} gives the main limitations and sums up two minor ones. Here they are in
+detail:
+\begin{itemize}
+  \item \emph{Training details.} Validation BPR still improved by a median of \val{han-gain-med} in
+        the last ten epochs (at most \val{han-gain-max}, and at most \val{searched-gain-max} for
+        the searched sets' runs), so longer training would more likely widen the gaps than close
+        them. The search chose its sets on validation edges that HAN also uses for early stopping,
+        so the sets are compared on test edges only. HAN's user-path graphs contain the training
+        edges it learns to predict. The search corrects for this and HAN does not, as the
+        correction did not help HAN on a small sample.
+  \item \emph{Leaf category links only:} with every ancestor linked, the candidates and the
+        search's choices would differ (Section~\ref{app:graph}).
+\end{itemize}

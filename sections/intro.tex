@@ -1,0 +1,68 @@
+% sections/intro.tex -- Section 1 (paper_v2, cut in C3 from the full version's introduction).
+% B1 (25 November) brought in the author's review of the Vietnamese introduction (paper_v2_vn,
+% L10): the three reasons as sentences, the question against manual design, two ways with random
+% draws as the control, a verdict that depends on the context, and no sentence on cleaning the
+% data, since the first contribution gives it. The claims stay within the full version's, and every
+% number is \val{} from numbers.tex.
+\section{Introduction}
+\label{sec:intro}
+
+Recommender systems often know more than who bought what: products belong to categories,
+customers buy some of them together, and users review them. A heterogeneous graph holds all of
+these relations, and meta-paths are a common way to read it: \code{PUP} (product--user--product)
+links two products reviewed by the same user. HAN \citep{wang2019heterogeneous} turns each
+meta-path into a graph and weighs the paths with attention, and many recommenders are built on
+meta-paths \citep{hu2018leveraging,shi2020hgrec,mu2021fhrec,yan2021attention}. The choice of paths
+matters: the performance of meta-path-based recommenders is ``highly sensitive to the meta-paths
+they use'' \citep{ning2022automatic}.
+
+The paths are usually chosen by hand, which takes expert knowledge and does not carry over from
+one dataset to the next \citep[][App.~D]{han2020genetic,li2024longrange}, and automatic discovery
+aims to take this choice over (Section~\ref{sec:related}). LMSPS \citep{li2024longrange}, a one-shot
+search over a large space of candidate paths, reports that its searched paths raise HAN's Micro-F1
+by \val{lmsps-t4-gain-min} to \val{lmsps-t4-gain-max} points on four node-classification datasets
+\citep[Table~4]{li2024longrange}. To our knowledge, whether they also help HAN as a recommender has
+not been tested, and the answer is not obvious for three reasons. First, LMSPS judges paths with its
+own search network rather than with HAN, so the best paths for that network need not be the best for
+HAN. Second, studies of neural architecture search found that searches often do no better than
+random choices \citep{li2019random,yu2020evaluating}. Third, the search costs GPU hours that a
+hand design does not need.
+
+We therefore ask: \emph{compared with manual design, is meta-path search worth its cost for
+HAN-based product recommendation?} On Amazon-Meta \citep{leskovec2007viral}, we compare two ways of
+choosing HAN's meta-paths from the same \val{search-cands} candidates. The first is by hand, with
+sets designed with AI assistance from stated principles and fixed before any result. The second is
+search by LMSPS, adapted to user--product link prediction and run \val{search-runs} times per set
+size, since one run cannot rank its best sets. To see how much the choice of paths matters, we use
+random draws from the same candidates as the control. Every set is trained in HAN and metapath2vec
+\citep{dong2017metapath2vec} and tested on the same held-out edges. The main metric is sampled
+Hit@10 (fixed in advance), with full ranking as a check. Popularity and a type-blind GAT serve as
+baselines.
+
+On this schema the answer depends on the context, since the searched sets come fairly close to the
+manual ones. On the metric fixed in advance, they trail the manual sets by \val{han-4-hit-relabs}\%
+and \val{han-6-hit-relabs}\% in HAN at four and six paths (\val{han-4-hit-pt} and
+\val{han-6-hit-pt}) and by \val{mtv-4-hit-relabs}\% and \val{mtv-6-hit-relabs}\% in metapath2vec. In
+HAN they tie on full ranking, after about \val{search-total-h} GPU hours of search. Manual design is
+therefore the better choice when an expert can design the paths in less time than the search takes,
+while search gives nearly equivalent sets when no expert is at hand. The searched sets lose mostly
+on books and music, the products their category paths cannot reach. The random control shows that
+the choice of paths matters little on this schema: in HAN, random draws do at least as well as both
+ways. GAT also beats both meta-path models. Two limits remain. First, with a shorter path-weight
+warm-up in HAN, the searched set beats the manual one at six paths in a check with a single seed
+(Section~\ref{sec:res-sensitivity}). Second, this small schema leaves untested the case that
+automatic search is meant for: schemas too large to design by hand or to sample at random.
+
+Our contributions are:
+\begin{itemize}
+  \item A cleaned Amazon-Meta for link prediction, in which merging duplicate editions cuts the
+        test edges with a copy in training from \val{before-testleak-pct}\% to
+        \val{after-testleak-pct}\% (Section~\ref{sec:data}).
+  \item LMSPS adapted to link prediction with leakage controls, and a way to combine many search
+        runs into one decision (Section~\ref{sec:method}).
+  \item A controlled comparison of searched and manual path sets in HAN and metapath2vec, with
+        random draws as the control and with the sets and the main metric fixed in advance
+        (Sections~\ref{sec:setup} and~\ref{sec:results}).
+  \item A cost--performance view of search against manual design, with path-level evidence for
+        where the searched sets lose (Section~\ref{sec:results}).
+\end{itemize}

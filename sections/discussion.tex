@@ -1,0 +1,49 @@
+% sections/discussion.tex -- the conclusion (paper_v2). Until B4 (25 November) this file held
+% Sections 8-10 (Discussion, Threats to validity, Conclusion), cut in C6 from the full version's. B4
+% brought in the reviewed Vietnamese version (paper_v2_vn, L10, N26 and N30): why the searched sets
+% lose and why GAT leads are in Section 7 (7.4 and 7.5), and this conclusion holds the verdict that
+% depends on the context, the lesson on who should judge a search, the limitations (with the two
+% minor ones of the old Threats list) and future work. The other Threats items are in Section 6 or
+% in the supplementary document. Claims stay within the full version's, and every number is \val{}
+% from numbers.tex.
+\section{Conclusion}
+\label{sec:conclusion}
+
+On a cleaned Amazon-Meta with three node types and \val{search-cands} candidate paths, automatic
+meta-path search comes fairly close to manual design for HAN-based product recommendation: the sets
+that a \val{search-runs-total}-run search chooses trail the manual sets by
+\val{han-6-hit-relabs}--\val{han-4-hit-relabs}\% on the metric fixed in advance and tie with them on
+full ranking. The loss sits mostly on the products that the searched sets' category paths cannot
+reach. Which way to choose therefore depends on the context. If an expert can design the paths in
+less time than the search takes (about \val{search-total-h} GPU hours here), manual design is the
+better choice. Without an expert, automatic search gives sets close to manual design with no domain
+knowledge. However, the random control shows that the choice of paths matters little on this small
+schema: random draws from the same candidates cost nothing and do at least as well as both ways
+(Section~\ref{sec:res-random}). The advantage of search (if any) more likely lies in larger schemas
+that are hard both to design by hand and to sample at random, which this study does not test. A
+type-blind GAT beats both meta-path models.
+
+The main lesson is that a search for a recommender should be judged by that recommender (as RMS does
+\citep{ning2022automatic}) or at least checked against random draws from its own candidates. The
+sets that LMSPS's own network judged best are not HAN's best. LMSPS's gains in HAN
+\citep[Table~4]{li2024longrange} were measured on node classification, where every node is encoded
+from its neighbourhood. In our link prediction, most of HAN's parameters are free user vectors that
+no meta-path shapes.
+
+\paragraph{Limitations.} The study uses one dataset, one task and one small schema, with
+product-side paths only. Its single random split ignores review dates, which lets a model learn from
+later interactions and can change how models rank \citep{ji2023leakage,meng2020splitting}. Every
+set uses one untuned configuration. With a shorter path-weight warm-up, the searched set beats the
+manual one at six paths in a check with a single seed (Section~\ref{sec:res-sensitivity}). Our
+search is smaller than the original paper's because it was sized for one GPU. Its runs agree beyond
+chance, but a larger search might choose differently. The manual sets were designed from stated
+principles rather than by a domain expert, so an expert might choose other sets. HAN's training had
+not fully converged: validation BPR still improved by up to \val{han-gain-max} in the last ten
+epochs, but by at most \val{searched-gain-max} for the searched sets. Longer training would
+therefore more likely widen than close the gap between the two ways. Products link only to their
+leaf categories (Section~\ref{sec:data}). With every ancestor linked, the candidates and the
+search's choices would differ.
+
+Future work includes (1) whether a dense category path closes the gap, (2) a search judged by its
+recommender (as in RMS), (3) user-side meta-paths, (4) the top-$k$ query of \citet{zhu2020topk}
+and (5) larger schemas, other datasets and splits by date, where a search may pay off.

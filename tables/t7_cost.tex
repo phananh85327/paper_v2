@@ -1,0 +1,32 @@
+% t7_cost.tex -- T7 of the plan: cost and performance of the three ways to choose HAN's paths.
+% Search cost from the 60 search logs (150 epochs at the logged epoch time plus the feature
+% propagation); results from results.csv; all via numbers.tex. The cost of the hand design is
+% stated in words (plan, D10): none of the reference papers measures it.
+\begin{widetable}[htbp]
+  \centering
+  \small
+  \caption{What each way of choosing HAN's meta-paths costs and what it gives: test Hit@10,
+    sampled and full ranking. By hand and by search: mean over 3 seeds. At random: mean of 5 draws,
+    one seed each. The relative gap is to the manual set of the same size. Training HAN on the
+    chosen set costs the same for all three, a median \val{han-run-min} GPU minutes per run.}
+  \label{tab:cost}
+  \begin{tabularx}{\linewidth}{@{}lLlll@{}}
+    \toprule
+    & & \multicolumn{2}{l}{Sampled Hit@10} & Full Hit@10 \\
+    \cmidrule(lr){3-4}\cmidrule(l){5-5}
+    Chosen & Cost of choosing & 4 / 6 paths & vs.\ by hand & 4 / 6 paths \\
+    \midrule
+    By hand (M5, M6) & no GPU: one AI-assisted design session (time not recorded) and density
+      checks on a small graph in CPU minutes & \val{han-m5-hit-mean} / \val{han-m6-hit-mean} & --
+      & \val{han-m5-fhit-mean} / \val{han-m6-fhit-mean} \\
+    By search (\code{a1}) & \val{search-runs} runs per size, a median \val{search-run-min-4} /
+      \val{search-run-min-6} GPU minutes each: \val{search-total-h} GPU hours
+      & \val{han-f4a1-hit-mean} / \val{han-f6a1-hit-mean}
+      & \val{han-4-hit-rel}\% / \val{han-6-hit-rel}\%
+      & \val{han-f4a1-fhit-mean} / \val{han-f6a1-fhit-mean} \\
+    At random (5 draws) & none & \val{han-r4-hit-mean} / \val{han-r6-hit-mean}
+      & \val{han-r4-vs-manual-rel}\% / \val{han-r6-vs-manual-rel}\%
+      & \val{han-r4-fhit-mean} / \val{han-r6-fhit-mean} \\
+    \bottomrule
+  \end{tabularx}
+\end{widetable}

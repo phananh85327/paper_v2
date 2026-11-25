@@ -1,0 +1,87 @@
+% t8_settings.tex -- the settings of the search and of every model (appendix). Values from
+% numbers.tex: the search's from its 60 run records, which make_numbers.py checks are alike apart
+% from the seed and the set size; the models' from the commands and model prints in their logs.
+\begin{widetable}[htbp]
+  \centering
+  \footnotesize
+  \renewcommand{\arraystretch}{1.0}
+  \caption{Every setting of the search and of the models, fixed before the runs and used for every
+    path set.}
+  \label{tab:settings}
+  \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.25\linewidth}L@{}}
+    \toprule
+    Setting & Value \\
+    \midrule
+    \multicolumn{2}{@{}l}{\emph{The search (LMSPS for link prediction)}} \\
+    Candidates & the \val{search-cands-raw} product-to-product paths of 1 to \val{search-hops}
+      hops, \val{search-cands} once each is merged with its reverse. No self-loops \\
+    Sets and pool & $M = 4$ or 6 paths. Final pool $V = \val{search-pool}$, so all
+      \val{search-sets} sets of $M$ paths are scored \\
+    Schedule & \val{search-epochs} epochs, the first \val{search-warmup} with the whole pool.
+      Gumbel temperature from \val{search-tau-max} down to \val{search-tau-min} \\
+    Network & one linear map per path, PReLU, dropout \val{search-dropout} (input dropout
+      \val{search-input-drop}). Product and user vectors of \val{search-hidden} dimensions \\
+    Optimiser & Adam: learning rate \val{search-lr} for the weights and \val{search-alr} for
+      $\alpha$, weight decay \val{search-weight-decay}. Batches of \val{search-batch} edges \\
+    Leakage controls & $\alpha$ learned on the validation edges. The weight step reads user-path
+      features from \val{search-folds} versions, each built without one quarter of the training
+      edges \\
+    Scoring & every set once without Gumbel noise, by validation BPR against the
+      \val{split-negatives} fixed negatives. Tie group within $\delta = \val{search-delta}$ \\
+    Runs & \val{search-runs} per set size, seeds 1 to \val{search-runs}. Deterministic GPU
+      kernels. Propagated features kept in 16-bit floats on the CPU \\
+    \midrule
+    \multicolumn{2}{@{}l}{\emph{HAN}} \\
+    Graphs & per path, each product's \val{han-set-topk} strongest neighbours by walk count after
+      every hop, ties broken at random. Binary, symmetric, a self-loop per product. Training
+      edges only \\
+    Encoder & \val{han-set-in-dim}-d product features. Per path one graph attention layer of
+      \val{han-set-num-heads} heads of \val{han-set-head-dim} dimensions, every path from the same
+      initial weights \\
+    Path weights & semantic attention with a \val{han-set-sem-dim}-d attention vector and a
+      softmax temperature of \val{han-set-semantic-tau}. Weights held equal for the first
+      \val{han-set-beta-warmup} epochs \\
+    Users & a free \val{han-set-hidden}-d vector per user \\
+    Training & dropout \val{han-set-feat-drop} on features and \val{han-set-attn-drop} on
+      attention. Adam, learning rate \val{han-set-lr}, weight decay \val{han-set-weight-decay}.
+      Batches of \val{han-set-batch-size} training edges, each with a fresh negative \\
+    Stopping & at most \val{han-set-stage} epochs. Stop when validation BPR has not improved by
+      more than \val{han-set-min-delta} for \val{han-set-patience} epochs. Test the best
+      checkpoint \\
+    \midrule
+    \multicolumn{2}{@{}l}{\emph{metapath2vec}} \\
+    Walks & per product and path, \val{mtv-set-walks-per-node} walks of length
+      \val{mtv-set-walk-length}. All paths of a set walked together, each as a repeated template.
+      Training edges only \\
+    Skip-gram & \val{mtv-set-dim} dimensions, window \val{mtv-set-window},
+      \val{mtv-set-negatives} negatives per pair, sampled uniformly from the context node's type \\
+    Training & sparse Adam, learning rate \val{mtv-set-lr}. Batches of \val{mtv-set-batch-walks}
+      walks \\
+    Stopping & at most \val{mtv-set-epochs} passes over the walks. Validation BPR checked
+      \val{mtv-set-evals-per-epoch} times per pass. Stop after \val{mtv-set-patience} checks
+      without a gain of more than \val{mtv-set-min-delta} \\
+    \midrule
+    \multicolumn{2}{@{}l}{\emph{GAT}} \\
+    Encoder & one linear projection per node type to \val{gat-set-in-dim} dimensions, then
+      \val{gat-set-layers} layers of \val{gat-set-num-heads} heads (\val{gat-set-hidden} dimensions
+      in all) on the union of all relations, node types otherwise ignored \\
+    Training & dropout \val{gat-set-feat-drop} on features and \val{gat-set-attn-drop} on
+      attention. Adam, learning rate \val{gat-set-lr}, weight decay \val{gat-set-weight-decay}.
+      Batches of \val{gat-set-batch-size} training edges, whose positive edges are removed from
+      the graph the step runs on \\
+    Stopping & as HAN, at most \val{gat-cap} epochs. Seed~\val{gat-rerun-seed} reached that cap
+      and was rerun with \val{gat-rerun-cap}, stopping at epoch \val{gat-rerun-stop} \\
+    \midrule
+    \multicolumn{2}{@{}l}{\emph{Popularity}} \\
+    Score & the product's number of training users, ties broken at random. One ranking for
+      every user \\
+    \midrule
+    \multicolumn{2}{@{}l}{\emph{Evaluation}} \\
+    Split & 80/10/10 at random, split seed~\val{split-seed}, \val{split-negatives} negatives per
+      validation and test edge, sampled once \\
+    Metrics & sampled Hit@10 (fixed in advance) and NDCG@10. On full ranking, Hit@10 and NDCG@10
+      per edge and Recall@20 per user \\
+    Seeds & 1 to 3 for the main comparison and GAT, 1 for the other sets \\
+    \bottomrule
+  \end{tabularx}
+\end{widetable}
